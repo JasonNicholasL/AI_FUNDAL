@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migo Yugo</title>
+    <style>
+        body {
+            background-color: #1d337a;
+        }
+
+        .containerHeader {
+            width: 100%;
+            height: 200px;
+        }
+
+        .title {
+            color: #ffffff;
+            text-align: center;
+            font-size: 50px;
+            font-family: 'Arial', sans-serif;
+            margin-top: 100px;
+        }
+        .gameCanvas {
+            background-color: #ffffff;
+            padding-top: 20px;
+            display: block;
+            margin: 0 auto;
+            height: 800px;
+            width: 800px;
+        }
+
+        .gameContainer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 24px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 20px;
+        }
+
+        .gameBoard {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gameTime {
+            width: 800px;
+            margin-top: 12px;
+            color: #ffffff;
+            text-align: center;
+            font-size: 24px;
+            font-family: Arial, sans-serif;
+            padding-top: 10px;
+        }
+
+        .gameSettings {
+            min-width: 220px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .gameSettings select {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        .gameSettings label {
+            display: block;
+            color: #0f214a;
+            font-weight: bold;
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+
+        #playerColorContainer {
+            display: none;
+        }
+
+        #playerColorContainer.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="containerHeader">
+            <h1 class="title">MIGO YUGO GAME</h1>
+    </div>
+    <div class="gameContainer">
+        <div class="gameBoard">
+            <div class="gameCanvas">
+
+            </div>
+            <div class="gameTime">
+                Time: 00:00
+            </div>
+        </div>
+        <div class="gameSettings">
+            <label>Select Game Type:</label>
+            <select name="gameType" id="gameTypeSelect">
+                <option value="2Player">2 Player</option>
+                <option value="easy">Baby AI</option>
+                <option value="medium">Teen AI</option>
+                <option value="hard">Magnus Carlsen AI</option>
+            </select>
+            
+            <div id="playerColorContainer">
+                <label>Play as:</label>
+                <select name="playerColor" id="playerColorSelect">
+                    <option value="black">Black</option>
+                    <option value="white">White</option>
+                </select>
+            </div>
+            <input type="button" value="Start Game" style="margin-top: 12px; width: 100%; padding: 8px; font-size: 16px;">
+            <input type="button" value="Reset Game" style="margin-top: 12px; width: 100%; padding: 8px; font-size: 16px;">
+
+
+        </div>
+    </div>
+
+
+    <footer style="height: 100px; background-color: #1d337a; color: #ffffff; text-align: center; line-height: 50px;">By Joel Christian, Jason Nicholas Liem, Clairine Vania Goni/Wu</footer>
+</body>
+
+<script src="ai-easy.js"></script>
+<script src="ai-medium.js"></script>
+<script src="ai-hard.js"></script>
+
+<script>
+    const GRID_SIZE = 8;
+    
+    // Board state: 0 = empty, 1 = black, 2 = white
+    let gameBoard = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(0));
+    
+    // Player mapping based on "Play as" selection
+    let playerColor = 'black'; // 'black' or 'white'
+    let playerPiece = 1; // 1 for black, 2 for white
+    let opponentPiece = 2;
+
+    function getPieceAtCell(row, col) {
+        if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) return 0;
+        return gameBoard[row][col];
+    }
+
+    function setPieceAtCell(row, col, piece) {
+        if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) return;
+        gameBoard[row][col] = piece;
+    }
+
+    function getColumnLabel(index) {
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        if (index < letters.length) return letters[index];
+
+        const first = Math.floor(index / letters.length) - 1;
+        const second = index % letters.length;
+        return letters[first] + letters[second];
+    }
+
+    function drawMigoYugoGrid() {
+        const container = document.querySelector('.gameCanvas');
+        if (!container) return;
+
+        let canvas = container.querySelector('canvas');
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvas.style.display = 'block';
+            canvas.style.margin = '0 auto';
+            container.appendChild(canvas);
+        }
+
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        const leftLabelSpace = 40;
+        const bottomLabelSpace = 30;
+        const boardPadding = 10;
+
+        const boardX = leftLabelSpace + boardPadding;
+        const boardY = boardPadding;
+        const boardWidth = width - boardX - boardPadding;
+        const boardHeight = height - bottomLabelSpace - (boardPadding * 2);
+
+        const cellSize = Math.min(boardWidth, boardHeight) / GRID_SIZE;
+        const gridWidth = cellSize * GRID_SIZE;
+        const gridHeight = cellSize * GRID_SIZE;
+
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.fillStyle = '#f7f9ff';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(boardX, boardY, gridWidth, gridHeight);
+
+        ctx.strokeStyle = '#17326b';
+        ctx.lineWidth = 1;
+
+        for (let i = 0; i <= GRID_SIZE; i += 1) {
+            const x = boardX + (i * cellSize);
+            const y = boardY + (i * cellSize);
+
+            ctx.beginPath();
+            ctx.moveTo(x, boardY);
+            ctx.lineTo(x, boardY + gridHeight);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(boardX, y);
+            ctx.lineTo(boardX + gridWidth, y);
+            ctx.stroke();
+        }
+
+        ctx.font = `${Math.max(12, cellSize * 0.3)}px Arial`;
+        ctx.fillStyle = '#0f214a';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+
+        for (let row = 0; row < GRID_SIZE; row += 1) {
+            const y = boardY + (row * cellSize) + (cellSize / 2);
+            const label = String(GRID_SIZE - row);
+            ctx.fillText(label, boardX - 8, y);
+        }
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        for (let col = 0; col < GRID_SIZE; col += 1) {
+            const x = boardX + (col * cellSize) + (cellSize / 2);
+            const label = getColumnLabel(col);
+            ctx.fillText(label, x, boardY + gridHeight + 8);
+        }
+
+        ctx.strokeStyle = '#0f214a';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(boardX, boardY, gridWidth, gridHeight);
+    }
+
+    function togglePlayerColor() {
+        const gameTypeSelect = document.getElementById('gameTypeSelect');
+        const playerColorContainer = document.getElementById('playerColorContainer');
+        
+        if (gameTypeSelect.value === '2Player') {
+            playerColorContainer.classList.remove('active');
+        } else {
+            playerColorContainer.classList.add('active');
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        drawMigoYugoGrid();
+        const gameTypeSelect = document.getElementById('gameTypeSelect');
+        const playerColorSelect = document.getElementById('playerColorSelect');
+        gameTypeSelect.addEventListener('change', togglePlayerColor);
+        if (playerColorSelect) {
+            playerColorSelect.addEventListener('change', function() {
+                playerColor = playerColorSelect.value;
+                playerPiece = playerColor === 'black' ? 1 : 2;
+                opponentPiece = playerColor === 'black' ? 2 : 1;
+            });
+        }
+    });
+    window.addEventListener('resize', drawMigoYugoGrid);
+
+</script>
+</html>
