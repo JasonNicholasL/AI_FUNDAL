@@ -4,269 +4,1079 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Migo Yugo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --navy: #0f1f4a;
+            --navy-dark: #090f28;
+            --gold: #e8b84b;
+            --gold-light: #f5d07a;
+            --green-board: #1a6b40;
+            --green-cell: #21824e;
+            --white: #f0f0f0;
+            --panel-bg: #162044;
+            --panel-border: #2a3f7a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background-color: #1d337a;
-        }
-
-        .containerHeader {
-            width: 100%;
-            height: 200px;
-        }
-
-        .title {
-            color: #ffffff;
-            text-align: center;
-            font-size: 50px;
-            font-family: 'Arial', sans-serif;
-            margin-top: 100px;
-        }
-        .gameCanvas {
-            background-color: #ffffff;
-            padding-top: 20px;
-            display: block;
-            margin: 0 auto;
-            height: 800px;
-            width: 800px;
-        }
-
-        .gameContainer {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 24px;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 0 20px;
-        }
-
-        .gameBoard {
+            background: var(--navy-dark);
+            font-family: 'Source Sans 3', sans-serif;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        .gameTime {
-            width: 800px;
-            margin-top: 12px;
-            color: #ffffff;
+        header {
+            padding: 20px 0 12px;
             text-align: center;
-            font-size: 24px;
-            font-family: Arial, sans-serif;
-            padding-top: 10px;
+            background: linear-gradient(180deg, #070d1f 0%, transparent 100%);
         }
 
-        .gameSettings {
-            min-width: 220px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 16px;
-            box-sizing: border-box;
+        header h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 8px;
+            text-shadow: 0 0 30px rgba(232,184,75,0.4);
         }
 
-        .gameSettings select {
-            width: 100%;
-            padding: 8px;
-            font-size: 16px;
+        .game-layout {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 0 20px 20px;
+            flex: 1;
         }
 
-        .gameSettings label {
+        .board-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .canvas-wrapper {
+            width: 680px;
+            height: 680px;
+            border: 2px solid var(--panel-border);
+            border-radius: 4px;
+            overflow: hidden;
+            background: var(--green-board);
+        }
+
+        #gameCanvas {
             display: block;
-            color: #0f214a;
-            font-weight: bold;
-            margin-top: 12px;
+        }
+
+        .game-info-bar {
+            width: 680px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 4px;
+            padding: 8px 16px;
+        }
+
+        .timer {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 2px;
+        }
+
+        .turn-info {
+            font-size: 15px;
+            color: #b0c0e0;
+            font-weight: 600;
+        }
+
+        .turn-info span.highlight {
+            color: var(--gold);
+        }
+
+        .score-bar {
+            width: 680px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .score-card {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 4px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #555;
+            flex-shrink: 0;
+        }
+
+        .score-dot.black { background: #111; border-color: #888; }
+        .score-dot.white { background: #eee; border-color: #888; }
+
+        .score-label {
+            font-size: 13px;
+            color: #8a9fc0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .score-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-left: auto;
+        }
+
+        .score-sub {
+            font-size: 12px;
+            color: #c0aa60;
+        }
+
+        /* Side panel */
+        .side-panel {
+            width: 210px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .panel-section label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6a80b0;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+
+        .panel-section select {
+            width: 100%;
+            padding: 8px 10px;
+            font-size: 14px;
+            background: #0f1a3a;
+            color: #d0dff0;
+            border: 1px solid var(--panel-border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .panel-section select:focus { outline: none; border-color: var(--gold); }
+
+        #playerColorContainer { display: none; }
+        #playerColorContainer.active { display: block; }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.15s ease;
+        }
+
+        .btn-primary {
+            background: var(--gold);
+            color: var(--navy-dark);
+        }
+        .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+        .btn-secondary {
+            background: transparent;
+            color: #8090b0;
+            border: 1px solid var(--panel-border);
+        }
+        .btn-secondary:hover { color: #d0dff0; border-color: #4a5a8a; }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--panel-border);
+        }
+
+        .legend {
+            font-size: 12px;
+            color: #6070a0;
+            line-height: 1.7;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 4px;
         }
 
-        #playerColorContainer {
-            display: none;
+        .legend-piece {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
 
-        #playerColorContainer.active {
-            display: block;
+        .legend-piece.migo-b { background: #111; border: 1.5px solid #888; }
+        .legend-piece.migo-w { background: #eee; border: 1.5px solid #888; }
+        .legend-piece.yugo-b { background: #111; border: 1.5px solid #888; position: relative; }
+        .legend-piece.yugo-w { background: #eee; border: 1.5px solid #888; position: relative; }
+        .legend-piece.yugo-b::after, .legend-piece.yugo-w::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: red;
+        }
+
+        /* Modal overlay */
+        #gameModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 10, 25, 0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        #gameModal.active { display: flex; }
+
+        .modal-box {
+            background: var(--panel-bg);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            padding: 36px 44px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 0 60px rgba(232,184,75,0.2);
+        }
+
+        .modal-box h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+
+        .modal-box p {
+            color: #b0c0e0;
+            font-size: 16px;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .modal-box .modal-score {
+            margin: 16px 0;
+            font-size: 18px;
+            color: #d0e0f0;
+            font-weight: 600;
+        }
+
+        .modal-box button {
+            margin-top: 20px;
+            padding: 10px 32px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: var(--gold);
+            color: var(--navy-dark);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .modal-box button:hover { background: var(--gold-light); }
+
+        footer {
+            text-align: center;
+            padding: 14px;
+            color: #3a4e7a;
+            font-size: 13px;
+            border-top: 1px solid #1a2550;
         }
     </style>
 </head>
 <body>
-    <div class="containerHeader">
-            <h1 class="title">MIGO YUGO GAME</h1>
-    </div>
-    <div class="gameContainer">
-        <div class="gameBoard">
-            <div class="gameCanvas">
+    <header>
+        <h1>MIGOYUGO</h1>
+    </header>
 
+    <div class="game-layout">
+        <div class="board-column">
+            <div class="canvas-wrapper">
+                <canvas id="gameCanvas"></canvas>
             </div>
-            <div class="gameTime">
-                Time: 00:00
+            <div class="game-info-bar">
+                <span class="timer" id="timerDisplay">⏱ 00:00</span>
+                <span class="turn-info" id="turnInfo">Waiting to start...</span>
+            </div>
+            <div class="score-bar">
+                <div class="score-card">
+                    <div class="score-dot black"></div>
+                    <div>
+                        <div class="score-label">Black Yugos</div>
+                    </div>
+                    <div class="score-value" id="scoreBlack">0</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-dot white"></div>
+                    <div>
+                        <div class="score-label">White Yugos</div>
+                    </div>
+                    <div class="score-value" id="scoreWhite">0</div>
+                </div>
             </div>
         </div>
-        <div class="gameSettings">
-            <label>Select Game Type:</label>
-            <select name="gameType" id="gameTypeSelect">
-                <option value="2Player">2 Player</option>
-                <option value="easy">Baby AI</option>
-                <option value="medium">Teen AI</option>
-                <option value="hard">Magnus Carlsen AI</option>
-            </select>
-            
-            <div id="playerColorContainer">
-                <label>Play as:</label>
-                <select name="playerColor" id="playerColorSelect">
-                    <option value="black">Black</option>
-                    <option value="white">White</option>
+
+        <div class="side-panel">
+            <div class="panel-section">
+                <label>Game Type</label>
+                <select id="gameTypeSelect">
+                    <option value="2Player">2 Player</option>
+                    <option value="easy">Baby AI</option>
+                    <option value="medium">Teen AI</option>
+                    <option value="hard">Magnus Carlsen AI</option>
                 </select>
             </div>
-            <input type="button" value="Start Game" style="margin-top: 12px; width: 100%; padding: 8px; font-size: 16px;">
-            <input type="button" value="Reset Game" style="margin-top: 12px; width: 100%; padding: 8px; font-size: 16px;">
 
+            <div class="panel-section" id="playerColorContainer">
+                <label>Play as</label>
+                <select id="playerColorSelect">
+                    <option value="white">White (moves first)</option>
+                    <option value="black">Black</option>
+                </select>
+            </div>
 
+            <button class="btn btn-primary" id="btnStart">▶ Start Game</button>
+            <button class="btn btn-secondary" id="btnReset">↺ Reset</button>
+            <button class="btn btn-secondary" id="btnResign" disabled>⚑ Resign</button>
+
+            <hr class="divider">
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-piece migo-b"></div> Black Migo</div>
+                <div class="legend-item"><div class="legend-piece migo-w"></div> White Migo</div>
+                <div class="legend-item"><div class="legend-piece yugo-b"></div> Black Yugo ●</div>
+                <div class="legend-item"><div class="legend-piece yugo-w"></div> White Yugo ●</div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="legend">
+                <div style="color:#8090b0; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Rules Summary</div>
+                <div style="color:#5060a0; font-size:11px; line-height:1.7;">
+                    White moves first. Form 4-in-a-row to create a Yugo. Migos in the line are removed, Yugo remains. Win instantly with 4 Yugos in a row (Igo), or win by Yugo count (Wego).
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Modal for game end -->
+    <div id="gameModal">
+        <div class="modal-box">
+            <h2 id="modalTitle">GAME OVER</h2>
+            <p id="modalMessage"></p>
+            <div class="modal-score" id="modalScore"></div>
+            <button onclick="closeModal()">Play Again</button>
+        </div>
+    </div>
 
-    <footer style="height: 100px; background-color: #1d337a; color: #ffffff; text-align: center; line-height: 50px;">By Joel Christian, Jason Nicholas Liem, Clairine Vania Goni/Wu</footer>
-</body>
-
-<script src="ai-easy.js"></script>
-<script src="ai-medium.js"></script>
-<script src="ai-hard.js"></script>
+    <footer>By Joel Christian, Jason Nicholas Liem, Clairine Vania Goni/Wu</footer>
 
 <script>
-    const GRID_SIZE = 8;
-    
-    // Board state: 0 = empty, 1 = black, 2 = white
-    let gameBoard = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(0));
-    
-    // Player mapping based on "Play as" selection
-    let playerColor = 'black'; // 'black' or 'white'
-    let playerPiece = 1; // 1 for black, 2 for white
-    let opponentPiece = 2;
+// ═══════════════════════════════════════════════
+//  CONSTANTS & STATE
+// ═══════════════════════════════════════════════
+const GRID_SIZE = 8;
 
-    function getPieceAtCell(row, col) {
-        if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) return 0;
-        return gameBoard[row][col];
+// Piece values:
+//   0 = empty
+//   1 = black Migo
+//   2 = white Migo
+//   3 = black Yugo (dot)
+//   4 = white Yugo (dot)
+
+let gameBoard = [];
+let gameActive = false;
+let gameType = '2Player';
+let currentTurn = 2; // 2 = white starts first
+let playerPiece = 2;
+let opponentPiece = 1;
+let gameStartTime = 0;
+let gameTimerInterval = null;
+let aiThinking = false;
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let boardX, boardY, cellSize;
+
+// ═══════════════════════════════════════════════
+//  BOARD HELPERS
+// ═══════════════════════════════════════════════
+function initBoard() {
+    gameBoard = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(0));
+    currentTurn = 2; // white starts
+}
+
+function inBounds(r, c) {
+    return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
+}
+
+function get(r, c) {
+    return inBounds(r, c) ? gameBoard[r][c] : 0;
+}
+
+function set(r, c, v) {
+    if (inBounds(r, c)) gameBoard[r][c] = v;
+}
+
+// Does this cell belong to the given base color (migo or yugo)?
+function isSameColor(r, c, base) {
+    const v = get(r, c);
+    if (base === 1) return v === 1 || v === 3; // black migo or black yugo
+    if (base === 2) return v === 2 || v === 4; // white migo or white yugo
+    return false;
+}
+
+function isYugo(r, c) {
+    const v = get(r, c);
+    return v === 3 || v === 4;
+}
+
+function yugoOf(base) { return base === 1 ? 3 : 4; }
+
+function getColumnLabel(i) {
+    return "ABCDEFGH"[i] || String.fromCharCode(65 + i);
+}
+
+// ═══════════════════════════════════════════════
+//  SCORE
+// ═══════════════════════════════════════════════
+function getYugoCount() {
+    let black = 0, white = 0;
+    for (let r = 0; r < GRID_SIZE; r++)
+        for (let c = 0; c < GRID_SIZE; c++) {
+            if (gameBoard[r][c] === 3) black++;
+            else if (gameBoard[r][c] === 4) white++;
+        }
+    return {black, white};
+}
+
+function updateScoreDisplay() {
+    const s = getYugoCount();
+    document.getElementById('scoreBlack').textContent = s.black;
+    document.getElementById('scoreWhite').textContent = s.white;
+}
+
+// ═══════════════════════════════════════════════
+//  NO-LONG-LINES VALIDATION
+//  Rule: you may never create an unbroken line of
+//  more than 4 of your own color (migos + yugos).
+// ═══════════════════════════════════════════════
+const DIRS4 = [[0,1],[1,0],[1,1],[1,-1]];
+
+function lineLength(r, c, base, dr, dc) {
+    // Count the full unbroken line through (r,c) in direction (dr,dc)
+    let count = 1;
+    let nr = r + dr, nc = c + dc;
+    while (inBounds(nr, nc) && isSameColor(nr, nc, base)) { count++; nr += dr; nc += dc; }
+    nr = r - dr; nc = c - dc;
+    while (inBounds(nr, nc) && isSameColor(nr, nc, base)) { count++; nr -= dr; nc -= dc; }
+    return count;
+}
+
+/**
+ * Would placing `base` at (r,c) create a line longer than 4?
+ * Returns true if the move is ILLEGAL (would make >4 in a row).
+ */
+function wouldExceedFour(r, c, base) {
+    // Temporarily place
+    const old = gameBoard[r][c];
+    gameBoard[r][c] = base;
+    let illegal = false;
+    for (const [dr, dc] of DIRS4) {
+        if (lineLength(r, c, base, dr, dc) > 4) { illegal = true; break; }
+    }
+    gameBoard[r][c] = old;
+    return illegal;
+}
+
+// ═══════════════════════════════════════════════
+//  VALID MOVE CHECK
+// ═══════════════════════════════════════════════
+function isValidMove(r, c, base) {
+    if (!inBounds(r, c)) return false;
+    if (gameBoard[r][c] !== 0) return false;           // cell occupied
+    if (wouldExceedFour(r, c, base)) return false;     // No Long Lines rule
+    return true;
+}
+
+function getValidMoves(base) {
+    const moves = [];
+    for (let r = 0; r < GRID_SIZE; r++)
+        for (let c = 0; c < GRID_SIZE; c++)
+            if (isValidMove(r, c, base)) moves.push([r, c]);
+    return moves;
+}
+
+function canMove(base) { return getValidMoves(base).length > 0; }
+
+// ═══════════════════════════════════════════════
+//  CAPTURE / YUGO CREATION
+//
+//  When a move creates exactly 4-in-a-row (per direction),
+//  ALL migos in that line are removed, and the PLACED piece
+//  becomes a Yugo.  Multiple intersecting lines are allowed;
+//  each such line that is exactly 4 contributes to the capture.
+//  Yugos already on the board STAY (they count toward the line
+//  length but are never removed).
+// ═══════════════════════════════════════════════
+
+/**
+ * Collect all cells in the unbroken line through (r,c) in direction (dr,dc).
+ * Returns the array of [r,c] pairs.
+ */
+function getLineCells(r, c, base, dr, dc) {
+    const cells = [[r, c]];
+    let nr = r + dr, nc = c + dc;
+    while (inBounds(nr, nc) && isSameColor(nr, nc, base)) { cells.push([nr, nc]); nr += dr; nc += dc; }
+    nr = r - dr; nc = c - dc;
+    while (inBounds(nr, nc) && isSameColor(nr, nc, base)) { cells.unshift([nr, nc]); nr -= dr; nc -= dc; }
+    return cells;
+}
+
+function checkAndCapture(row, col, base) {
+    const yugo = yugoOf(base);
+    let createdYugo = false;
+
+    for (const [dr, dc] of DIRS4) {
+        const cells = getLineCells(row, col, base, dr, dc);
+        if (cells.length === 4) {
+            createdYugo = true;
+            // Remove all Migos in the line; Yugos stay
+            for (const [cr, cc] of cells) {
+                if (gameBoard[cr][cc] !== 3 && gameBoard[cr][cc] !== 4) {
+                    gameBoard[cr][cc] = 0; // clear migo
+                }
+            }
+        }
     }
 
-    function setPieceAtCell(row, col, piece) {
-        if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) return;
-        gameBoard[row][col] = piece;
+    if (createdYugo) {
+        // The placed cell becomes a Yugo
+        gameBoard[row][col] = yugo;
     }
+}
 
-    function getColumnLabel(index) {
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        if (index < letters.length) return letters[index];
+// ═══════════════════════════════════════════════
+//  WIN CONDITION
+// ═══════════════════════════════════════════════
 
-        const first = Math.floor(index / letters.length) - 1;
-        const second = index % letters.length;
-        return letters[first] + letters[second];
+/** IGO: 4 Yugos of the same color in a line → instant win */
+function checkIgo(base) {
+    const yugo = yugoOf(base);
+    for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+            if (gameBoard[r][c] !== yugo) continue;
+            for (const [dr, dc] of DIRS4) {
+                let count = 0;
+                let nr = r, nc = c;
+                while (inBounds(nr, nc) && gameBoard[nr][nc] === yugo) {
+                    count++;
+                    nr += dr; nc += dc;
+                }
+                if (count >= 4) return true;
+            }
+        }
     }
+    return false;
+}
 
-    function drawMigoYugoGrid() {
-        const container = document.querySelector('.gameCanvas');
-        if (!container) return;
+/** WEGO: board full or current player has no legal move */
+function boardFull() {
+    for (let r = 0; r < GRID_SIZE; r++)
+        for (let c = 0; c < GRID_SIZE; c++)
+            if (gameBoard[r][c] === 0) return false;
+    return true;
+}
 
-        let canvas = container.querySelector('canvas');
-        if (!canvas) {
-            canvas = document.createElement('canvas');
-            canvas.style.display = 'block';
-            canvas.style.margin = '0 auto';
-            container.appendChild(canvas);
-        }
+// ═══════════════════════════════════════════════
+//  MAKE MOVE (human or AI entry point)
+// ═══════════════════════════════════════════════
+function makeMove(r, c, base) {
+    if (!isValidMove(r, c, base)) return false;
+    set(r, c, base);
+    checkAndCapture(r, c, base);
+    return true;
+}
 
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        canvas.width = width;
-        canvas.height = height;
+// ═══════════════════════════════════════════════
+//  TURN MANAGEMENT
+// ═══════════════════════════════════════════════
+function otherBase(base) { return base === 1 ? 2 : 1; }
 
-        const ctx = canvas.getContext('2d');
-        const leftLabelSpace = 40;
-        const bottomLabelSpace = 30;
-        const boardPadding = 10;
+function switchTurn() {
+    currentTurn = otherBase(currentTurn);
+}
 
-        const boardX = leftLabelSpace + boardPadding;
-        const boardY = boardPadding;
-        const boardWidth = width - boardX - boardPadding;
-        const boardHeight = height - bottomLabelSpace - (boardPadding * 2);
-
-        const cellSize = Math.min(boardWidth, boardHeight) / GRID_SIZE;
-        const gridWidth = cellSize * GRID_SIZE;
-        const gridHeight = cellSize * GRID_SIZE;
-
-        ctx.clearRect(0, 0, width, height);
-
-        ctx.fillStyle = '#f7f9ff';
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(boardX, boardY, gridWidth, gridHeight);
-
-        ctx.strokeStyle = '#17326b';
-        ctx.lineWidth = 1;
-
-        for (let i = 0; i <= GRID_SIZE; i += 1) {
-            const x = boardX + (i * cellSize);
-            const y = boardY + (i * cellSize);
-
-            ctx.beginPath();
-            ctx.moveTo(x, boardY);
-            ctx.lineTo(x, boardY + gridHeight);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(boardX, y);
-            ctx.lineTo(boardX + gridWidth, y);
-            ctx.stroke();
-        }
-
-        ctx.font = `${Math.max(12, cellSize * 0.3)}px Arial`;
-        ctx.fillStyle = '#0f214a';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-
-        for (let row = 0; row < GRID_SIZE; row += 1) {
-            const y = boardY + (row * cellSize) + (cellSize / 2);
-            const label = String(GRID_SIZE - row);
-            ctx.fillText(label, boardX - 8, y);
-        }
-
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-
-        for (let col = 0; col < GRID_SIZE; col += 1) {
-            const x = boardX + (col * cellSize) + (cellSize / 2);
-            const label = getColumnLabel(col);
-            ctx.fillText(label, x, boardY + gridHeight + 8);
-        }
-
-        ctx.strokeStyle = '#0f214a';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(boardX, boardY, gridWidth, gridHeight);
-    }
-
-    function togglePlayerColor() {
-        const gameTypeSelect = document.getElementById('gameTypeSelect');
-        const playerColorContainer = document.getElementById('playerColorContainer');
-        
-        if (gameTypeSelect.value === '2Player') {
-            playerColorContainer.classList.remove('active');
+function updateTurnInfo() {
+    const el = document.getElementById('turnInfo');
+    if (!gameActive) { el.innerHTML = 'Waiting to start...'; return; }
+    const colorName = currentTurn === 1 ? 'Black' : 'White';
+    if (gameType === '2Player') {
+        el.innerHTML = `Turn: <span class="highlight">${colorName}</span>`;
+    } else {
+        if (currentTurn === playerPiece) {
+            el.innerHTML = `Your turn — <span class="highlight">${colorName}</span>`;
         } else {
-            playerColorContainer.classList.add('active');
+            const name = gameType === 'easy' ? 'Baby AI' : gameType === 'medium' ? 'Teen AI' : 'Magnus Carlsen AI';
+            el.innerHTML = `<span class="highlight">${name} is thinking…</span>`;
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════
+//  GAME END
+// ═══════════════════════════════════════════════
+function endGameIgo(winner) {
+    gameActive = false;
+    clearInterval(gameTimerInterval);
+    const colorName = winner === 1 ? 'Black' : 'White';
+    showModal(`${colorName.toUpperCase()} WINS!`, `An Igo! Four Yugos in a row!`, '');
+    drawBoard();
+}
+
+function endGameWego(reason) {
+    gameActive = false;
+    clearInterval(gameTimerInterval);
+    const s = getYugoCount();
+    let winner, msg;
+    if (s.black > s.white) { winner = 'Black wins the Wego'; }
+    else if (s.white > s.black) { winner = 'White wins the Wego'; }
+    else { winner = 'Draw!'; }
+    showModal('WEGO', reason, `${winner} — Black Yugos: ${s.black} | White Yugos: ${s.white}`);
+    drawBoard();
+}
+
+function showModal(title, msg, score) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMessage').textContent = msg;
+    document.getElementById('modalScore').textContent = score;
+    document.getElementById('gameModal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('gameModal').classList.remove('active');
+    resetGame();
+}
+
+function afterMove(mover) {
+    updateScoreDisplay();
+    drawBoard();
+
+    // Check Igo for mover
+    if (checkIgo(mover)) {
+        endGameIgo(mover);
+        return;
+    }
+
+    // Switch turn
+    switchTurn();
+    updateTurnInfo();
+
+    // Check if next player can move
+    if (!canMove(currentTurn)) {
+        // Wego
+        endGameWego(`${currentTurn === 1 ? 'Black' : 'White'} has no legal moves.`);
+        return;
+    }
+
+    if (boardFull()) {
+        endGameWego('The board is full.');
+        return;
+    }
+
+    // AI 
+    if (gameActive && gameType !== '2Player' && currentTurn === opponentPiece && !aiThinking) {
+        aiThinking = true;
+        updateTurnInfo();
+        setTimeout(makeAIMove, 400);
+    }
+}
+
+canvas.addEventListener('click', function(e) {
+    if (!gameActive || aiThinking) return;
+    if (gameType !== '2Player' && currentTurn !== playerPiece) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    const col = Math.floor((x - boardX) / cellSize);
+    const row = Math.floor((y - boardY) / cellSize);
+
+    if (!inBounds(row, col)) return;
+    if (!makeMove(row, col, currentTurn)) return;
+
+    afterMove(currentTurn);
+});
+
+// ═══════════════════════════════════════════════
+//  AI (Easy, Medium, Hard)
+// ═══════════════════════════════════════════════
+function makeAIMove() {
+    if (!gameActive) { aiThinking = false; return; }
+    const base = currentTurn; // AI's color
+    const opponent = otherBase(base);
+    let move = null;
+
+    if (gameType === 'easy') {
+        move = easyAI(base);
+    } else if (gameType === 'medium') {
+        move = mediumAI(base, opponent);
+    } else {
+        move = hardAI(base, opponent);
+    }
+
+    if (move) {
+        makeMove(move[0], move[1], base);
+        aiThinking = false;
+        afterMove(base);
+    } else {
+        aiThinking = false;
+        endGameWego(`${base === 1 ? 'Black' : 'White'} AI has no legal moves.`);
+    }
+}
+
+// --- Easy AI: random valid move ---
+function easyAI(base) {
+    const moves = getValidMoves(base);
+    if (!moves.length) return null;
+    return moves[Math.floor(Math.random() * moves.length)];
+}
+
+// --- Medium AI: prefer moves that create Yugos; block opponent Yugos ---
+function mediumAI(base, opp) {
+    const moves = getValidMoves(base);
+    if (!moves.length) return null;
+
+    // 1. Win immediately with Igo (if placing creates a Yugo that finishes 4 yugos)
+    for (const [r, c] of moves) {
+        if (wouldCreateYugoLeadingToIgo(r, c, base)) return [r, c];
+    }
+    // 2. Create a Yugo
+    for (const [r, c] of moves) {
+        if (wouldCreateYugo(r, c, base)) return [r, c];
+    }
+    // 3. Block opponent creating a Yugo
+    for (const [r, c] of moves) {
+        if (wouldCreateYugo(r, c, opp) && isValidMove(r, c, base)) return [r, c];
+    }
+    return moves[Math.floor(Math.random() * moves.length)];
+}
+
+// --- Hard AI: minimax-lite with heuristic scoring ---
+function hardAI(base, opp) {
+    const moves = getValidMoves(base);
+    if (!moves.length) return null;
+
+    let best = null, bestScore = -Infinity;
+    for (const [r, c] of moves) {
+        const saved = JSON.parse(JSON.stringify(gameBoard));
+        makeMove(r, c, base);
+        const score = evaluateBoard(base, opp) - evaluateBoard(opp, base) * 0.8;
+        gameBoard = saved;
+        if (score > bestScore) { bestScore = score; best = [r, c]; }
+    }
+    return best;
+}
+
+function evaluateBoard(base, opp) {
+    let score = 0;
+    const yugos = getYugoCount();
+    score += (base === 1 ? yugos.black : yugos.white) * 10;
+    // Check if Igo is imminent
+    if (checkIgo(base)) score += 1000;
+    // Reward moves that would make a yugo
+    for (let r = 0; r < GRID_SIZE; r++)
+        for (let c = 0; c < GRID_SIZE; c++)
+            if (isValidMove(r, c, base) && wouldCreateYugo(r, c, base)) score += 5;
+    return score;
+}
+
+function wouldCreateYugo(r, c, base) {
+    const saved = gameBoard[r][c];
+    gameBoard[r][c] = base;
+    let creates = false;
+    for (const [dr, dc] of DIRS4) {
+        if (getLineCells(r, c, base, dr, dc).length === 4) { creates = true; break; }
+    }
+    gameBoard[r][c] = saved;
+    return creates;
+}
+
+function wouldCreateYugoLeadingToIgo(r, c, base) {
+    const saved = JSON.parse(JSON.stringify(gameBoard));
+    makeMove(r, c, base);
+    const wins = checkIgo(base);
+    gameBoard = saved;
+    return wins;
+}
+
+// ═══════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════
+function updateTimer() {
+    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    document.getElementById('timerDisplay').textContent = `⏱ ${m}:${s}`;
+}
+
+// ═══════════════════════════════════════════════
+//  START / RESET
+// ═══════════════════════════════════════════════
+function startGame() {
+    gameType = document.getElementById('gameTypeSelect').value;
+
+    if (gameType === '2Player') {
+        playerPiece = 2; // doesn't matter
+        opponentPiece = 1;
+    } else {
+        const pc = document.getElementById('playerColorSelect').value;
+        playerPiece = pc === 'black' ? 1 : 2;
+        opponentPiece = otherBase(playerPiece);
+    }
+
+    initBoard();
+    gameActive = true;
+    aiThinking = false;
+    gameStartTime = Date.now();
+    clearInterval(gameTimerInterval);
+    gameTimerInterval = setInterval(updateTimer, 500);
+
+    updateTurnInfo();
+    updateScoreDisplay();
+    drawBoard();
+
+    document.getElementById('btnResign').disabled = false;
+
+    // If AI is white (moves first)
+    if (gameType !== '2Player' && currentTurn === opponentPiece) {
+        aiThinking = true;
+        updateTurnInfo();
+        setTimeout(makeAIMove, 600);
+    }
+}
+
+function resetGame() {
+    gameActive = false;
+    aiThinking = false;
+    clearInterval(gameTimerInterval);
+    initBoard();
+    currentTurn = 2;
+    document.getElementById('timerDisplay').textContent = '⏱ 00:00';
+    document.getElementById('turnInfo').innerHTML = 'Waiting to start...';
+    document.getElementById('btnResign').disabled = true;
+    updateScoreDisplay();
+    drawBoard();
+}
+
+// ═══════════════════════════════════════════════
+//  RESIGN
+// ═══════════════════════════════════════════════
+function resign() {
+    if (!gameActive) return;
+    gameActive = false;
+    clearInterval(gameTimerInterval);
+    const winner = otherBase(currentTurn);
+    const loserName = currentTurn === 1 ? 'Black' : 'White';
+    const winnerName = winner === 1 ? 'Black' : 'White';
+    showModal(`${winnerName.toUpperCase()} WINS`, `${loserName} resigned.`, '');
+    drawBoard();
+}
+
+// ═══════════════════════════════════════════════
+//  DRAWING
+// ═══════════════════════════════════════════════
+function resizeCanvas() {
+    const wrapper = document.querySelector('.canvas-wrapper');
+    canvas.width = wrapper.clientWidth;
+    canvas.height = wrapper.clientHeight;
+    computeLayout();
+    drawBoard();
+}
+
+function computeLayout() {
+    const w = canvas.width, h = canvas.height;
+    const labelSpace = 28;
+    const pad = 8;
+    boardX = labelSpace + pad;
+    boardY = pad;
+    const bw = w - boardX - pad;
+    const bh = h - labelSpace - pad * 2;
+    cellSize = Math.min(bw, bh) / GRID_SIZE;
+}
+
+function drawBoard() {
+    if (!canvas.width) return;
+    const w = canvas.width, h = canvas.height;
+    computeLayout();
+
+    const gridW = cellSize * GRID_SIZE;
+    const gridH = cellSize * GRID_SIZE;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Background
+    ctx.fillStyle = '#1a6b40';
+    ctx.fillRect(0, 0, w, h);
+
+    // Board surface
+    ctx.fillStyle = '#21824e';
+    ctx.fillRect(boardX, boardY, gridW, gridH);
+
+    // Valid move hints
+    if (gameActive && !aiThinking) {
+        const hints = getValidMoves(currentTurn);
+        ctx.fillStyle = 'rgba(255,255,180,0.22)';
+        for (const [r, c] of hints) {
+            ctx.beginPath();
+            ctx.arc(boardX + c * cellSize + cellSize/2, boardY + r * cellSize + cellSize/2, cellSize * 0.18, 0, Math.PI*2);
+            ctx.fill();
         }
     }
 
-    window.addEventListener('DOMContentLoaded', function() {
-        drawMigoYugoGrid();
-        const gameTypeSelect = document.getElementById('gameTypeSelect');
-        const playerColorSelect = document.getElementById('playerColorSelect');
-        gameTypeSelect.addEventListener('change', togglePlayerColor);
-        if (playerColorSelect) {
-            playerColorSelect.addEventListener('change', function() {
-                playerColor = playerColorSelect.value;
-                playerPiece = playerColor === 'black' ? 1 : 2;
-                opponentPiece = playerColor === 'black' ? 2 : 1;
-            });
-        }
-    });
-    window.addEventListener('resize', drawMigoYugoGrid);
+    // Grid lines
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= GRID_SIZE; i++) {
+        ctx.beginPath(); ctx.moveTo(boardX + i*cellSize, boardY); ctx.lineTo(boardX + i*cellSize, boardY + gridH); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(boardX, boardY + i*cellSize); ctx.lineTo(boardX + gridW, boardY + i*cellSize); ctx.stroke();
+    }
 
+    // Border
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(boardX, boardY, gridW, gridH);
+
+    // Pieces
+    for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+            const v = gameBoard[r][c];
+            if (v === 0) continue;
+            const px = boardX + c * cellSize + cellSize/2;
+            const py = boardY + r * cellSize + cellSize/2;
+            const rad = cellSize * 0.36;
+
+            // Shadow
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetY = 2;
+
+            ctx.beginPath();
+            ctx.arc(px, py, rad, 0, Math.PI*2);
+
+            if (v === 1 || v === 3) {
+                // Black piece
+                const g = ctx.createRadialGradient(px - rad*0.3, py - rad*0.3, rad*0.05, px, py, rad);
+                g.addColorStop(0, '#555');
+                g.addColorStop(1, '#111');
+                ctx.fillStyle = g;
+            } else {
+                // White piece
+                const g = ctx.createRadialGradient(px - rad*0.3, py - rad*0.3, rad*0.05, px, py, rad);
+                g.addColorStop(0, '#ffffff');
+                g.addColorStop(1, '#c8c8c8');
+                ctx.fillStyle = g;
+            }
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+
+            // Stroke
+            ctx.strokeStyle = (v === 1 || v === 3) ? '#555' : '#aaa';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Yugo dot
+            if (v === 3 || v === 4) {
+                ctx.beginPath();
+                ctx.arc(px, py, cellSize * 0.11, 0, Math.PI*2);
+                ctx.fillStyle = '#ff2200';
+                ctx.fill();
+            }
+        }
+    }
+
+    // Row labels (1–8, bottom to top)
+    ctx.font = `bold ${Math.max(10, cellSize * 0.28)}px Rajdhani, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (let r = 0; r < GRID_SIZE; r++) {
+        const lbl = String(GRID_SIZE - r);
+        ctx.fillText(lbl, boardX - 5, boardY + r * cellSize + cellSize/2);
+    }
+
+    // Col labels (A–H)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (let c = 0; c < GRID_SIZE; c++) {
+        ctx.fillText(getColumnLabel(c), boardX + c * cellSize + cellSize/2, boardY + gridH + 5);
+    }
+}
+
+// ═══════════════════════════════════════════════
+//  EVENT WIRING
+// ═══════════════════════════════════════════════
+document.getElementById('btnStart').addEventListener('click', startGame);
+document.getElementById('btnReset').addEventListener('click', resetGame);
+document.getElementById('btnResign').addEventListener('click', resign);
+
+document.getElementById('gameTypeSelect').addEventListener('change', function() {
+    const container = document.getElementById('playerColorContainer');
+    if (this.value === '2Player') container.classList.remove('active');
+    else container.classList.add('active');
+});
+
+window.addEventListener('resize', resizeCanvas);
+
+window.addEventListener('DOMContentLoaded', function() {
+    resizeCanvas();
+    initBoard();
+    drawBoard();
+});
 </script>
+</body>
 </html>
