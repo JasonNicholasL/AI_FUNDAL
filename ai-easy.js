@@ -1,6 +1,21 @@
 // Easy AI - MigoYugo
 // Difficulty: Random valid moves, prioritizes winning moves
-
+// ai_easy.js
+function dapatkanLangkahMudah(board, currentTurn) {
+    // Panggil fungsi easyAI Anda di bawah
+    // Di index.html: 2 = White, 1 = Black
+    const hasilLangkah = easyAI(board, currentTurn);
+    
+    // Jika ada langkah yang ditemukan, ubah format array [r, c] menjadi objek {r, c}
+    if (hasilLangkah) {
+        return { 
+            r: hasilLangkah[0], 
+            c: hasilLangkah[1] 
+        };
+    }
+    
+    return null; // Jika papan penuh / tidak ada langkah valid
+}
 function easyAI(board, piece) {
     const GRID_SIZE = 8;
     const DIRECTIONS = [

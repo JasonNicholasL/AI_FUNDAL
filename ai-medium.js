@@ -3,6 +3,23 @@
  * Strategy: Negamax with Alpha-Beta Pruning (Depth 3)
  * Preserves your instant wins/blocks and your distance-from-center positional heuristic!
  */
+
+function dapatkanLangkahMedium(board, currentTurn) {
+    // Panggil fungsi easyAI Anda di bawah
+    // Di index.html: 2 = White, 1 = Black
+    const hasilLangkah = mediumAI(board, currentTurn);
+    
+    // Jika ada langkah yang ditemukan, ubah format array [r, c] menjadi objek {r, c}
+    if (hasilLangkah) {
+        return { 
+            r: hasilLangkah[0], 
+            c: hasilLangkah[1] 
+        };
+    }
+    
+    return null; // Jika papan penuh / tidak ada langkah valid
+}
+
 function mediumAI(board, piece) {
     const GRID_SIZE = 8;
     const opponentPiece = piece === 1 ? 2 : 1;

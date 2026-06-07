@@ -10,10 +10,10 @@
     />
     <style>
       :root {
-        --wood-dark: #2c1a11;    /* Warna kayu mahoni tua */
-        --wood-medium: #5c3a21;  /* Warna kayu cokelat hangat */
-        --wood-light: #cf9a72;   /* Warna kayu terang/maple */
-        --wood-tan: #e6c594;     /* Warna krem serat kayu */
+        --wood-dark: #2c1a11; /* Warna kayu mahoni tua */
+        --wood-medium: #5c3a21; /* Warna kayu cokelat hangat */
+        --wood-light: #cf9a72; /* Warna kayu terang/maple */
+        --wood-tan: #e6c594; /* Warna krem serat kayu */
         --bg-wood: #1a0f0a;
         --panel-bg: rgba(44, 26, 17, 0.9);
         --border-glow: rgba(207, 154, 114, 0.4);
@@ -30,7 +30,9 @@
         background-image:
           radial-gradient(circle at 50% 50%, #3a2214 0%, #1a0f0a 100%),
           linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-        background-size: 100% 100%, 40px 40px;
+        background-size:
+          100% 100%,
+          40px 40px;
         color: #f7ebd3;
         font-family: "Jost", sans-serif;
         min-height: 100vh;
@@ -100,10 +102,23 @@
       }
 
       @keyframes shake {
-        10%, 90% { transform: translate3d(-1px, 0, 0); }
-        20%, 80% { transform: translate3d(2px, 0, 0); }
-        30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-        40%, 60% { transform: translate3d(4px, 0, 0); }
+        10%,
+        90% {
+          transform: translate3d(-1px, 0, 0);
+        }
+        20%,
+        80% {
+          transform: translate3d(2px, 0, 0);
+        }
+        30%,
+        50%,
+        70% {
+          transform: translate3d(-4px, 0, 0);
+        }
+        40%,
+        60% {
+          transform: translate3d(4px, 0, 0);
+        }
       }
 
       .score-card {
@@ -167,7 +182,7 @@
         text-align: center;
         max-width: 500px;
         border-radius: 8px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       }
 
       .modal-box h2 {
@@ -218,6 +233,10 @@
       }
     </style>
   </head>
+  <script src="ai-easy.js"></script>
+  <script src="ai-medium.js"></script>
+  <script src="ai-hard.js"></script>
+
   <body>
     <header>
       <h1>MIGO YUGO</h1>
@@ -242,18 +261,62 @@
         </div>
 
         <div class="section-title" style="margin-top: 20px">Match Clock</div>
-        <div id="timerDisplay" style="font-family: 'Cinzel', serif; font-size: 2rem; color: var(--wood-tan); margin-bottom: 15px;">
+        <div
+          id="timerDisplay"
+          style="
+            font-family: &quot;Cinzel&quot;, serif;
+            font-size: 2rem;
+            color: var(--wood-tan);
+            margin-bottom: 15px;
+          "
+        >
           00:00
         </div>
 
         <div class="section-title" style="margin-top: 25px">Move History</div>
-        <div id="moveHistoryPanel" style="background: rgba(0,0,0,0.3); border-radius: 4px; padding: 10px; height: 160px; overflow-y: auto; font-family: 'Jost', sans-serif; font-size: 13px; border: 1px solid var(--wood-medium); color: #f7ebd3; line-height: 1.6;">
-          <div style="opacity: 0.5; text-align: center; margin-top: 50px;">No moves recorded</div>
+        <div
+          id="moveHistoryPanel"
+          style="
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            padding: 10px;
+            height: 160px;
+            overflow-y: auto;
+            font-family: &quot;Jost&quot;, sans-serif;
+            font-size: 13px;
+            border: 1px solid var(--wood-medium);
+            color: #f7ebd3;
+            line-height: 1.6;
+          "
+        >
+          <div style="opacity: 0.5; text-align: center; margin-top: 50px">
+            No moves recorded
+          </div>
         </div>
 
-        <div id="reviewControls" style="display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-          <button class="btn" id="btnPrevMove" style="margin-top:0; padding: 8px;">◀ Prev</button>
-          <button class="btn" id="btnNextMove" style="margin-top:0; padding: 8px;">Next ▶</button>
+        <div
+          id="reviewControls"
+          style="
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+          "
+        >
+          <button
+            class="btn"
+            id="btnPrevMove"
+            style="margin-top: 0; padding: 8px"
+          >
+            ◀ Prev
+          </button>
+          <button
+            class="btn"
+            id="btnNextMove"
+            style="margin-top: 0; padding: 8px"
+          >
+            Next ▶
+          </button>
         </div>
       </div>
 
@@ -292,7 +355,8 @@
         <div style="font-size: 12px; line-height: 2">
           <span style="color: #fcf3e3">●</span> Migo White: Standard Ivory<br />
           <span style="color: #21140c">●</span> Migo Black: Standard Ebony<br />
-          <span style="color: var(--wood-tan)">◆</span> Yugo Core: Carved Diamond<br />
+          <span style="color: var(--wood-tan)">◆</span> Yugo Core: Carved
+          Diamond<br />
         </div>
       </div>
     </div>
@@ -301,9 +365,7 @@
       <div class="modal-box">
         <h2 id="modalTitle">MATCH END</h2>
         <p id="modalMessage" style="font-size: 1.2rem; margin-bottom: 30px"></p>
-        <button class="btn" onclick="closeModal()">
-          Return to Base
-        </button>
+        <button class="btn" onclick="closeModal()">Return to Base</button>
       </div>
     </div>
 
@@ -312,7 +374,8 @@
       let gameBoard = [];
       let gameActive = false;
       let currentTurn = 2; // 2=White, 1=Black
-      let playerPiece = 2, opponentPiece = 1;
+      let playerPiece = 2,
+        opponentPiece = 1;
       let gameType = "2Player";
       let startTime = 0;
       let timerInt = null;
@@ -359,25 +422,32 @@
       function playWoodSound() {
         try {
           if (!audioCtx) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const AudioContext =
+              window.AudioContext || window.webkitAudioContext;
             audioCtx = new AudioContext();
           }
-          if (audioCtx.state === 'suspended') {
+          if (audioCtx.state === "suspended") {
             audioCtx.resume();
           }
           const osc = audioCtx.createOscillator();
           const gainNode = audioCtx.createGain();
-          
+
           osc.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          
-          osc.type = 'triangle';
+
+          osc.type = "triangle";
           osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.08);
-          
+          osc.frequency.exponentialRampToValueAtTime(
+            80,
+            audioCtx.currentTime + 0.08,
+          );
+
           gainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
-          
+          gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioCtx.currentTime + 0.12,
+          );
+
           osc.start();
           osc.stop(audioCtx.currentTime + 0.12);
         } catch (e) {
@@ -386,28 +456,29 @@
       }
 
       function saveBoardSnapshot() {
-        const snapshot = gameBoard.map(row => [...row]);
+        const snapshot = gameBoard.map((row) => [...row]);
         boardHistory.push(snapshot);
       }
 
       function recordMoveNotation(r, c, base) {
-        const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
         const notation = `${columns[c]}${8 - r}`;
         const turnText = base === 2 ? "White" : "Black";
         const moveNum = Math.floor(moveHistory.length / 2) + 1;
-        
+
         if (base === 2) {
           let moveText = `<div style="padding: 3px 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">${moveNum}. <b>${turnText}</b>: ${notation}`;
           moveHistory.push(moveText);
         } else {
-          if(moveHistory.length > 0) {
-            moveHistory[moveHistory.length - 1] += ` &nbsp;|&nbsp; <b>${turnText}</b>: ${notation}</div>`;
+          if (moveHistory.length > 0) {
+            moveHistory[moveHistory.length - 1] +=
+              ` &nbsp;|&nbsp; <b>${turnText}</b>: ${notation}</div>`;
           } else {
             let moveText = `<div style="padding: 3px 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">1. <b>${turnText}</b>: ${notation}</div>`;
             moveHistory.push(moveText);
           }
         }
-        
+
         const panel = document.getElementById("moveHistoryPanel");
         panel.innerHTML = moveHistory.join("");
         panel.scrollTop = panel.scrollHeight;
@@ -422,7 +493,9 @@
       }
 
       function initBoard() {
-        gameBoard = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
+        gameBoard = Array.from({ length: GRID_SIZE }, () =>
+          Array(GRID_SIZE).fill(0),
+        );
         currentTurn = 2;
       }
 
@@ -439,16 +512,27 @@
         if (!inBounds(r, c) || gameBoard[r][c] !== 0) return false;
         gameBoard[r][c] = base;
         let illegal = false;
-        const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+        const dirs = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1],
+        ];
         for (let [dr, dc] of dirs) {
           let count = 1;
-          let nr = r + dr, nc = c + dc;
+          let nr = r + dr,
+            nc = c + dc;
           while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
-            count++; nr += dr; nc += dc;
+            count++;
+            nr += dr;
+            nc += dc;
           }
-          nr = r - dr; nc = c - dc;
+          nr = r - dr;
+          nc = c - dc;
           while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
-            count++; nr -= dr; nc -= dc;
+            count++;
+            nr -= dr;
+            nc -= dc;
           }
           if (count > 4) illegal = true;
         }
@@ -458,18 +542,29 @@
 
       function checkAndCapture(r, c, base) {
         let createdYugo = false;
-        const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+        const dirs = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1],
+        ];
         const cellsToRemove = new Set();
 
         for (let [dr, dc] of dirs) {
           let cells = [`${r},${c}`];
-          let nr = r + dr, nc = c + dc;
+          let nr = r + dr,
+            nc = c + dc;
           while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
-            cells.push(`${nr},${nc}`); nr += dr; nc += dc;
+            cells.push(`${nr},${nc}`);
+            nr += dr;
+            nc += dc;
           }
-          nr = r - dr; nc = c - dc;
+          nr = r - dr;
+          nc = c - dc;
           while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
-            cells.unshift(`${nr},${nc}`); nr -= dr; nc -= dc;
+            cells.unshift(`${nr},${nc}`);
+            nr -= dr;
+            nc -= dc;
           }
           if (cells.length === 4) {
             createdYugo = true;
@@ -492,10 +587,19 @@
         for (let r = 0; r < GRID_SIZE; r++) {
           for (let c = 0; c < GRID_SIZE; c++) {
             if (gameBoard[r][c] !== yugo) continue;
-            for (let [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
-              let count = 0, nr = r, nc = c;
+            for (let [dr, dc] of [
+              [0, 1],
+              [1, 0],
+              [1, 1],
+              [1, -1],
+            ]) {
+              let count = 0,
+                nr = r,
+                nc = c;
               while (inBounds(nr, nc) && gameBoard[nr][nc] === yugo) {
-                count++; nr += dr; nc += dc;
+                count++;
+                nr += dr;
+                nc += dc;
               }
               if (count >= 4) return true;
             }
@@ -520,21 +624,27 @@
         ctx.strokeStyle = "rgba(44, 26, 11, 0.4)";
         ctx.lineWidth = 2;
         for (let i = 0; i <= GRID_SIZE; i++) {
-          ctx.beginPath(); ctx.moveTo(i * cellSize, 0); ctx.lineTo(i * cellSize, canvas.height); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(0, i * cellSize); ctx.lineTo(canvas.width, i * cellSize); ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(i * cellSize, 0);
+          ctx.lineTo(i * cellSize, canvas.height);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, i * cellSize);
+          ctx.lineTo(canvas.width, i * cellSize);
+          ctx.stroke();
         }
 
         // --- 2. TAMBAHAN: MENGGAMBAR LABEL KOORDINAT GRID (A-H & 1-8) ---
         ctx.fillStyle = "rgba(230, 197, 148, 0.35)"; // Warna krem kayu transparan agar elegan dan tidak mengganggu mata
         ctx.font = "bold 13px 'Cinzel', serif";
         ctx.textBaseline = "middle";
-        
-        const cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+        const cols = ["A", "B", "C", "D", "E", "F", "G", "H"];
         for (let i = 0; i < GRID_SIZE; i++) {
           // Menggambar Huruf Kolom (A-H) di bagian bawah setiap kotak grid
           ctx.textAlign = "right";
           ctx.fillText(cols[i], (i + 1) * cellSize - 6, canvas.height - 10);
-          
+
           // Menggambar Angka Baris (1-8) di bagian pojok kiri atas setiap kotak grid
           ctx.textAlign = "left";
           ctx.fillText(8 - i, 8, i * cellSize + 14);
@@ -543,13 +653,27 @@
         // Target Hantu / Bidik Langkah (Hanya jika tidak sedang review)
         if (gameActive && !aiThinking && !isReviewMode && mouse.gridR !== -1) {
           if (isValidMove(mouse.gridR, mouse.gridC, currentTurn)) {
-            ctx.fillStyle = currentTurn === 2 ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.2)";
+            ctx.fillStyle =
+              currentTurn === 2
+                ? "rgba(255, 255, 255, 0.15)"
+                : "rgba(0, 0, 0, 0.2)";
             ctx.beginPath();
-            ctx.arc(mouse.gridC * cellSize + cellSize / 2, mouse.gridR * cellSize + cellSize / 2, cellSize * 0.35, 0, Math.PI * 2);
+            ctx.arc(
+              mouse.gridC * cellSize + cellSize / 2,
+              mouse.gridR * cellSize + cellSize / 2,
+              cellSize * 0.35,
+              0,
+              Math.PI * 2,
+            );
             ctx.fill();
             ctx.strokeStyle = "rgba(230, 197, 148, 0.5)";
             ctx.lineWidth = 2;
-            ctx.strokeRect(mouse.gridC * cellSize + 5, mouse.gridR * cellSize + 5, cellSize - 10, cellSize - 10);
+            ctx.strokeRect(
+              mouse.gridC * cellSize + 5,
+              mouse.gridR * cellSize + 5,
+              cellSize - 10,
+              cellSize - 10,
+            );
           }
         }
 
@@ -566,7 +690,14 @@
 
             ctx.shadowBlur = 0;
 
-            const grad = ctx.createRadialGradient(x - cellSize * 0.1, y - cellSize * 0.1, 2, x, y, cellSize * 0.38);
+            const grad = ctx.createRadialGradient(
+              x - cellSize * 0.1,
+              y - cellSize * 0.1,
+              2,
+              x,
+              y,
+              cellSize * 0.38,
+            );
             if (isBlack) {
               grad.addColorStop(0, "#4a3121");
               grad.addColorStop(0.5, "#21140c");
@@ -597,7 +728,9 @@
             if (isYugo) {
               ctx.strokeStyle = "#dfb76c";
               ctx.lineWidth = 2;
-              ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke();
+              ctx.beginPath();
+              ctx.arc(x, y, 6, 0, Math.PI * 2);
+              ctx.stroke();
             }
           }
         }
@@ -625,7 +758,10 @@
         if (!gameActive || aiThinking || isReviewMode) return;
 
         if (!isValidMove(mouse.gridR, mouse.gridC, currentTurn)) {
-          if (inBounds(mouse.gridR, mouse.gridC) && gameBoard[mouse.gridR][mouse.gridC] === 0) {
+          if (
+            inBounds(mouse.gridR, mouse.gridC) &&
+            gameBoard[mouse.gridR][mouse.gridC] === 0
+          ) {
             const notif = document.getElementById("illegalNotification");
             clearTimeout(notificationTimeout);
             notif.classList.add("show");
@@ -647,25 +783,27 @@
 
       function makeMove(r, c, base) {
         if (!isValidMove(r, c, base)) return false;
-        
+
         if (boardHistory.length === 0) {
           document.getElementById("moveHistoryPanel").innerHTML = "";
         }
 
         gameBoard[r][c] = base;
-        playWoodSound(); 
+        playWoodSound();
         checkAndCapture(r, c, base);
-        
+
         recordMoveNotation(r, c, base);
         saveBoardSnapshot();
-        
+
         return true;
       }
 
       function afterMove() {
         updateScore();
         if (checkIgo(currentTurn)) {
-          endGame(`IGO DETECTED: ${currentTurn === 2 ? "WHITE" : "BLACK"} WINS`);
+          endGame(
+            `IGO DETECTED: ${currentTurn === 2 ? "WHITE" : "BLACK"} WINS`,
+          );
           return;
         }
 
@@ -674,8 +812,10 @@
         if (!hasLegalMoves(nextTurn)) {
           let w = parseInt(document.getElementById("scoreWhite").innerText);
           let b = parseInt(document.getElementById("scoreBlack").innerText);
-          if (w > b) endGame(`WEGO WIN: WHITE WINS BY YUGO COUNT (${w} vs ${b})`);
-          else if (b > w) endGame(`WEGO WIN: BLACK WINS BY YUGO COUNT (${b} vs ${w})`);
+          if (w > b)
+            endGame(`WEGO WIN: WHITE WINS BY YUGO COUNT (${w} vs ${b})`);
+          else if (b > w)
+            endGame(`WEGO WIN: BLACK WINS BY YUGO COUNT (${b} vs ${w})`);
           else endGame(`MATCH DRAW: NO MOVES LEFT AND EQUAL YUGO CORES.`);
           return;
         }
@@ -683,13 +823,29 @@
         currentTurn = nextTurn;
         updateUI();
 
-        if (gameActive && gameType !== "2Player" && currentTurn === opponentPiece) {
+        if (
+          gameActive &&
+          gameType !== "2Player" &&
+          currentTurn === opponentPiece
+        ) {
           aiThinking = true;
           setTimeout(aiMove, 600);
         }
       }
 
       function aiMove() {
+        let pick;
+
+        if (gameType === "easy") {
+          pick = dapatkanLangkahMudah(gameBoard, currentTurn);
+          console.log("AI (Easy) picks:", pick);
+        } else if (gameType === "medium") {
+          pick = dapatkanLangkahMedium(gameBoard, currentTurn);
+          console.log("AI (Medium) picks:", pick);
+        } else if (gameType === "hard") {
+          pick = dapatkanLangkahHard(gameBoard, currentTurn);
+          console.log("AI (Hard) picks:", pick);
+        }
         const moves = [];
         for (let r = 0; r < GRID_SIZE; r++) {
           for (let c = 0; c < GRID_SIZE; c++) {
@@ -703,13 +859,28 @@
           if (gameType === "medium" || gameType === "hard") {
             moves.forEach((m) => {
               gameBoard[m.r][m.c] = currentTurn;
-              const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+              const dirs = [
+                [0, 1],
+                [1, 0],
+                [1, 1],
+                [1, -1],
+              ];
               for (let [dr, dc] of dirs) {
                 let count = 1;
-                let nr = m.r + dr, nc = m.c + dc;
-                while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) { count++; nr += dr; nc += dc; }
-                nr = m.r - dr; nc = m.c - dc;
-                while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) { count++; nr -= dr; nc -= dc; }
+                let nr = m.r + dr,
+                  nc = m.c + dc;
+                while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) {
+                  count++;
+                  nr += dr;
+                  nc += dc;
+                }
+                nr = m.r - dr;
+                nc = m.c - dc;
+                while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) {
+                  count++;
+                  nr -= dr;
+                  nc -= dc;
+                }
                 if (count === 4) m.score += 50;
                 if (count === 3) m.score += 10;
               }
@@ -720,10 +891,20 @@
                 gameBoard[m.r][m.c] = enemy;
                 for (let [dr, dc] of dirs) {
                   let count = 1;
-                  let nr = m.r + dr, nc = m.c + dc;
-                  while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) { count++; nr += dr; nc += dc; }
-                  nr = m.r - dr; nc = m.c - dc;
-                  while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) { count++; nr -= dr; nc -= dc; }
+                  let nr = m.r + dr,
+                    nc = m.c + dc;
+                  while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) {
+                    count++;
+                    nr += dr;
+                    nc += dc;
+                  }
+                  nr = m.r - dr;
+                  nc = m.c - dc;
+                  while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) {
+                    count++;
+                    nr -= dr;
+                    nc -= dc;
+                  }
                   if (count === 4) m.score += 40;
                 }
                 gameBoard[m.r][m.c] = 0;
@@ -740,13 +921,20 @@
       }
 
       function updateUI() {
-        document.getElementById("cardWhite").classList.toggle("active", currentTurn === 2);
-        document.getElementById("cardBlack").classList.toggle("active", currentTurn === 1);
-        document.getElementById("turnInfo").innerText = aiThinking ? "AI ANALYZING..." : "AWAITING COMMAND...";
+        document
+          .getElementById("cardWhite")
+          .classList.toggle("active", currentTurn === 2);
+        document
+          .getElementById("cardBlack")
+          .classList.toggle("active", currentTurn === 1);
+        document.getElementById("turnInfo").innerText = aiThinking
+          ? "AI ANALYZING..."
+          : "AWAITING COMMAND...";
       }
 
       function updateScore() {
-        let w = 0, b = 0;
+        let w = 0,
+          b = 0;
         gameBoard.forEach((row) =>
           row.forEach((cell) => {
             if (cell === 4) w++;
@@ -770,12 +958,16 @@
         boardHistory = [];
         reviewIndex = -1;
         isReviewMode = false;
-        document.getElementById("moveHistoryPanel").innerHTML = '<div style="opacity: 0.5; text-align: center; margin-top: 50px;">No moves recorded</div>';
+        document.getElementById("moveHistoryPanel").innerHTML =
+          '<div style="opacity: 0.5; text-align: center; margin-top: 50px;">No moves recorded</div>';
         document.getElementById("reviewControls").style.display = "none";
 
         gameType = document.getElementById("gameTypeSelect").value;
         if (gameType !== "2Player") {
-          playerPiece = document.getElementById("playerColorSelect").value === "white" ? 2 : 1;
+          playerPiece =
+            document.getElementById("playerColorSelect").value === "white"
+              ? 2
+              : 1;
           opponentPiece = playerPiece === 1 ? 2 : 1;
         }
         initBoard();
@@ -795,7 +987,9 @@
 
       document.getElementById("btnReset").onclick = () => location.reload();
       document.getElementById("btnResign").onclick = () => {
-        endGame(`TACTICAL RESIGNATION: ${currentTurn === 2 ? "WHITE" : "BLACK"} SURRENDERED.`);
+        endGame(
+          `TACTICAL RESIGNATION: ${currentTurn === 2 ? "WHITE" : "BLACK"} SURRENDERED.`,
+        );
       };
 
       function endGame(msg) {
@@ -805,7 +999,7 @@
         document.getElementById("modalMessage").innerText = msg;
         document.getElementById("gameModal").style.display = "flex";
 
-        if(boardHistory.length > 0) {
+        if (boardHistory.length > 0) {
           isReviewMode = true;
           reviewIndex = boardHistory.length - 1;
           document.getElementById("reviewControls").style.display = "grid";
@@ -817,33 +1011,39 @@
       }
 
       document.getElementById("gameTypeSelect").onchange = function () {
-        document.getElementById("playerColorContainer").style.display = this.value === "2Player" ? "none" : "block";
+        document.getElementById("playerColorContainer").style.display =
+          this.value === "2Player" ? "none" : "block";
       };
 
       // Logika Tombol Navigasi Review
       document.getElementById("btnPrevMove").onclick = () => {
         if (!isReviewMode || reviewIndex <= 0) return;
         reviewIndex--;
-        gameBoard = boardHistory[reviewIndex].map(row => [...row]);
+        gameBoard = boardHistory[reviewIndex].map((row) => [...row]);
         highlightHistoryRow(reviewIndex);
       };
 
       document.getElementById("btnNextMove").onclick = () => {
         if (!isReviewMode || reviewIndex >= boardHistory.length - 1) return;
         reviewIndex++;
-        gameBoard = boardHistory[reviewIndex].map(row => [...row]);
+        gameBoard = boardHistory[reviewIndex].map((row) => [...row]);
         highlightHistoryRow(reviewIndex);
       };
 
       function highlightHistoryRow(index) {
-        const items = document.getElementById("moveHistoryPanel").getElementsByTagName("div");
+        const items = document
+          .getElementById("moveHistoryPanel")
+          .getElementsByTagName("div");
         const rowIndex = Math.floor(index / 2);
-        
-        for(let item of items) item.style.background = "transparent";
-        
-        if(items[rowIndex]) {
+
+        for (let item of items) item.style.background = "transparent";
+
+        if (items[rowIndex]) {
           items[rowIndex].style.background = "rgba(230, 197, 148, 0.2)";
-          items[rowIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          items[rowIndex].scrollIntoView({
+            block: "nearest",
+            behavior: "smooth",
+          });
         }
       }
 

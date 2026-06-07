@@ -1,6 +1,21 @@
 // Hard AI - MigoYugo
 // Difficulty: Minimax with alpha-beta pruning, optimized for 4-in-a-row wins
 
+function dapatkanLangkahHard(board, currentTurn) {
+    // Panggil fungsi utama AI Medium Anda (misal namanya mediumAI)
+    const hasilLangkah = mediumAI(board, currentTurn);
+    
+    // Jika ada langkah yang ditemukan, ubah format array [r, c] menjadi objek { r, c }
+    if (hasilLangkah) {
+        return { 
+            r: hasilLangkah[0], 
+            c: hasilLangkah[1] 
+        };
+    }
+    
+    return null; // Antisipasi jika papan penuh / tidak ada langkah valid
+}
+
 function hardAI(board, piece) {
     const depth = 4; // Look ahead 4 moves
     const { move } = minimax(JSON.parse(JSON.stringify(board)), piece, depth, -Infinity, Infinity, true);
