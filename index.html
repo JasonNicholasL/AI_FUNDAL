@@ -1,632 +1,976 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MIGO YUGO // QUANTUM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MIGO YUGO</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --neon-blue: #00f2ff;
-            --neon-pink: #ff007b;
-            --neon-gold: #ffcc00;
-            --bg-dark: #02050a;
-            --panel-bg: rgba(10, 15, 28, 0.85);
-            --border-glow: rgba(0, 242, 255, 0.3);
+      :root {
+        --neon-blue: #00f2ff;
+        --neon-pink: #ff007b;
+        --neon-gold: #ffcc00;
+        --bg-dark: #02050a;
+        --panel-bg: rgba(10, 15, 28, 0.85);
+        --border-glow: rgba(0, 242, 255, 0.3);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-dark);
+        background-image:
+          radial-gradient(circle at 50% 50%, #101830 0%, #02050a 100%),
+          linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+        background-size:
+          100% 100%,
+          50px 50px,
+          50px 50px;
+        color: #fff;
+        font-family: "Rajdhani", sans-serif;
+        min-height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* --- UI Header --- */
+      header {
+        padding: 20px;
+        text-align: center;
+        position: relative;
+      }
+
+      header h1 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        letter-spacing: 15px;
+        text-transform: uppercase;
+        background: linear-gradient(to bottom, #fff 30%, var(--neon-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.4));
+        animation: titlePulse 4s infinite ease-in-out;
+      }
+
+      @keyframes titlePulse {
+        0%,
+        100% {
+          opacity: 0.9;
+          transform: scale(1);
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 50% 50%, #101830 0%, #02050a 100%),
-                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 100% 100%, 50px 50px, 50px 50px;
-            color: #fff;
-            font-family: 'Rajdhani', sans-serif;
-            min-height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+        50% {
+          opacity: 1;
+          transform: scale(1.02);
         }
+      }
 
-        /* --- UI Header --- */
-        header {
-            padding: 20px;
-            text-align: center;
-            position: relative;
+      /* --- Main Layout --- */
+      .game-container {
+        display: grid;
+        grid-template-columns: 300px 1fr 300px;
+        gap: 20px;
+        padding: 20px;
+        flex: 1;
+        align-items: center;
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+
+      /* --- HUD Panels --- */
+      .hud-panel {
+        background: var(--panel-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border-glow);
+        padding: 20px;
+        border-radius: 4px;
+        position: relative;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .hud-panel::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 20px;
+        height: 20px;
+        border-top: 3px solid var(--neon-blue);
+        border-left: 3px solid var(--neon-blue);
+      }
+
+      .hud-panel::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        right: -1px;
+        width: 20px;
+        height: 20px;
+        border-bottom: 3px solid var(--neon-blue);
+        border-right: 3px solid var(--neon-blue);
+      }
+
+      .section-title {
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.8rem;
+        color: var(--neon-blue);
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border-glow);
+      }
+
+      /* --- The Board --- */
+      .canvas-wrapper {
+        position: relative;
+        perspective: 1000px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #gameCanvas {
+        background: rgba(0, 20, 40, 0.5);
+        border: 2px solid var(--neon-blue);
+        box-shadow: 0 0 50px rgba(0, 242, 255, 0.15);
+        cursor: pointer;
+        transition: transform 0.1s ease-out;
+      }
+
+      .shake {
+        animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      }
+
+      @keyframes shake {
+        10%,
+        90% {
+          transform: translate3d(-1px, 0, 0);
         }
-
-        header h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 3.5rem;
-            font-weight: 900;
-            letter-spacing: 15px;
-            text-transform: uppercase;
-            background: linear-gradient(to bottom, #fff 30%, var(--neon-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.4));
-            animation: titlePulse 4s infinite ease-in-out;
+        20%,
+        80% {
+          transform: translate3d(2px, 0, 0);
         }
-
-        @keyframes titlePulse {
-            0%, 100% { opacity: 0.9; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.02); }
+        30%,
+        50%,
+        70% {
+          transform: translate3d(-4px, 0, 0);
         }
-
-        /* --- Main Layout --- */
-        .game-container {
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            gap: 20px;
-            padding: 20px;
-            flex: 1;
-            align-items: center;
-            max-width: 1600px;
-            margin: 0 auto;
+        40%,
+        60% {
+          transform: translate3d(4px, 0, 0);
         }
+      }
 
-        /* --- HUD Panels --- */
-        .hud-panel {
-            background: var(--panel-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border-glow);
-            padding: 20px;
-            border-radius: 4px;
-            position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
+      /* --- Score Cards --- */
+      .score-card {
+        margin-bottom: 15px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        border-left: 4px solid #333;
+        transition: all 0.3s;
+      }
 
-        .hud-panel::before {
-            content: '';
-            position: absolute;
-            top: -1px; left: -1px; width: 20px; height: 20px;
-            border-top: 3px solid var(--neon-blue);
-            border-left: 3px solid var(--neon-blue);
-        }
+      .score-card.active {
+        background: rgba(0, 242, 255, 0.1);
+        border-left-color: var(--neon-blue);
+        transform: translateX(10px);
+      }
 
-        .hud-panel::after {
-            content: '';
-            position: absolute;
-            bottom: -1px; right: -1px; width: 20px; height: 20px;
-            border-bottom: 3px solid var(--neon-blue);
-            border-right: 3px solid var(--neon-blue);
-        }
-
-        .section-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.8rem;
-            color: var(--neon-blue);
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title::after {
-            content: ''; flex: 1; height: 1px; background: var(--border-glow);
-        }
-
-        /* --- The Board --- */
-        .canvas-wrapper {
-            position: relative;
-            perspective: 1000px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #gameCanvas {
-            background: rgba(0, 20, 40, 0.5);
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 50px rgba(0, 242, 255, 0.15);
-            cursor: pointer;
-            transition: transform 0.1s ease-out;
-        }
-
-        .shake {
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-
-        /* --- Score Cards --- */
-        .score-card {
-            margin-bottom: 15px;
-            padding: 15px;
-            background: rgba(255,255,255,0.03);
-            border-left: 4px solid #333;
-            transition: all 0.3s;
-        }
-
-        .score-card.active {
-            background: rgba(0, 242, 255, 0.1);
-            border-left-color: var(--neon-blue);
-            transform: translateX(10px);
-        }
-
-        /* .score-card.active.black-turn {
+      /* .score-card.active.black-turn {
             background: rgba(255, 0, 123, 0.1);
             border-left-color: var(--neon-pink);
         } */
 
-        .score-card.active-white { border-left: 5px solid var(--neon-blue); background: rgba(0, 242, 255, 0.05); transform: scale(1.05); }
-        .score-card.active-black { border-left: 5px solid var(--neon-pink); background: rgba(255, 0, 123, 0.05); transform: scale(1.05); }
+      .score-card.active-white {
+        border-left: 5px solid var(--neon-blue);
+        background: rgba(0, 242, 255, 0.05);
+        transform: scale(1.05);
+      }
+      .score-card.active-black {
+        border-left: 5px solid var(--neon-pink);
+        background: rgba(255, 0, 123, 0.05);
+        transform: scale(1.05);
+      }
 
-        .score-val {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2rem;
-            font-weight: 900;
-        }
+      .score-val {
+        font-family: "Orbitron", sans-serif;
+        font-size: 2rem;
+        font-weight: 900;
+      }
 
-        /* --- Buttons --- */
-        .btn {
-            width: 100%;
-            padding: 15px;
-            margin-top: 10px;
-            background: transparent;
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.2s;
-            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-        }
+      /* --- Buttons --- */
+      .btn {
+        width: 100%;
+        padding: 15px;
+        margin-top: 10px;
+        background: transparent;
+        border: 1px solid var(--neon-blue);
+        color: var(--neon-blue);
+        font-family: "Orbitron", sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+        clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+      }
 
-        .btn:hover {
-            background: var(--neon-blue);
-            color: #000;
-            box-shadow: 0 0 20px var(--neon-blue);
-        }
+      .btn:hover {
+        background: var(--neon-blue);
+        color: #000;
+        box-shadow: 0 0 20px var(--neon-blue);
+      }
 
-        .btn-start {
-            border-color: var(--neon-gold);
-            color: var(--neon-gold);
-        }
-        .btn-start:hover {
-            background: var(--neon-gold);
-            box-shadow: 0 0 20px var(--neon-gold);
-        }
+      .btn-start {
+        border-color: var(--neon-gold);
+        color: var(--neon-gold);
+      }
+      .btn-start:hover {
+        background: var(--neon-gold);
+        box-shadow: 0 0 20px var(--neon-gold);
+      }
 
-        /* --- Modal --- */
-        #gameModal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
+      /* --- Modal --- */
+      #gameModal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+      }
 
-        .modal-box {
-            background: #0a0f1c;
-            border: 2px solid var(--neon-blue);
-            padding: 50px;
-            text-align: center;
-            max-width: 500px;
-            position: relative;
-        }
+      .modal-box {
+        background: #0a0f1c;
+        border: 2px solid var(--neon-blue);
+        padding: 50px;
+        text-align: center;
+        max-width: 500px;
+        position: relative;
+      }
 
-        .modal-box h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: var(--neon-blue);
-        }
+      .modal-box h2 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: var(--neon-blue);
+      }
 
-        select {
-            width: 100%;
-            background: #111;
-            color: #00f2ff;
-            border: 1px solid #00f2ff;
-            padding: 10px;
-            font-family: 'Rajdhani', sans-serif;
-            margin-bottom: 10px;
-        }
+      select {
+        width: 100%;
+        background: #111;
+        color: #00f2ff;
+        border: 1px solid #00f2ff;
+        padding: 10px;
+        font-family: "Rajdhani", sans-serif;
+        margin-bottom: 10px;
+      }
 
+      #illegalNotification {
+        position: fixed;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        background: rgba(255, 0, 123, 0.95);
+        color: #fff;
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        padding: 15px 40px;
+        border: 2px solid #fff;
+        box-shadow:
+          0 0 30px rgba(255, 0, 123, 0.8),
+          inset 0 0 15px rgba(0, 0, 0, 0.5);
+        letter-spacing: 2px;
+        z-index: 9999;
+        display: none;
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+      }
+
+      #illegalNotification.show {
+        display: block;
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <header>
-        <h1>MIGO YUGO</h1>
+      <h1>MIGO YUGO</h1>
     </header>
 
+    <div id="illegalNotification">
+      ILLEGAL MOVE, CANNOT PLACE MORE THAN 4 PIECES
+    </div>
+
     <div class="game-container">
-        <!-- LEFT HUD -->
-        <div class="hud-panel">
-            <div class="section-title">System Status</div>
-            <div id="cardWhite" class="score-card active">
-                <div style="font-size: 12px; opacity: 0.7;">CORE // WHITE</div>
-                <div class="score-val" id="scoreWhite">0</div>
-                <div style="font-size: 11px;">YUGOS DETECTED</div>
-            </div>
-            <div id="cardBlack" class="score-card">
-                <div style="font-size: 12px; opacity: 0.7;">CORE // BLACK</div>
-                <div class="score-val" id="scoreBlack">0</div>
-                <div style="font-size: 11px;">YUGOS DETECTED</div>
-            </div>
-            
-            <div class="section-title" style="margin-top: 30px;">Match Clock</div>
-            <div id="timerDisplay" style="font-family: 'Orbitron'; font-size: 2rem; color: var(--neon-blue);">00:00</div>
+      <!-- LEFT HUD -->
+      <div class="hud-panel">
+        <div class="section-title">System Status</div>
+        <div id="cardWhite" class="score-card active">
+          <div style="font-size: 12px; opacity: 0.7">CORE // WHITE</div>
+          <div class="score-val" id="scoreWhite">0</div>
+          <div style="font-size: 11px">YUGOS DETECTED</div>
+        </div>
+        <div id="cardBlack" class="score-card">
+          <div style="font-size: 12px; opacity: 0.7">CORE // BLACK</div>
+          <div class="score-val" id="scoreBlack">0</div>
+          <div style="font-size: 11px">YUGOS DETECTED</div>
         </div>
 
-        <!-- CENTER: BOARD -->
-        <div class="canvas-wrapper">
-            <canvas id="gameCanvas" width="700" height="700"></canvas>
+        <div class="section-title" style="margin-top: 30px">Match Clock</div>
+        <div
+          id="timerDisplay"
+          style="
+            font-family: &quot;Orbitron&quot;;
+            font-size: 2rem;
+            color: var(--neon-blue);
+          "
+        >
+          00:00
+        </div>
+      </div>
+
+      <!-- CENTER: BOARD -->
+      <div class="canvas-wrapper">
+        <canvas id="gameCanvas" width="700" height="700"></canvas>
+      </div>
+
+      <!-- RIGHT HUD -->
+      <div class="hud-panel">
+        <div class="section-title">Tactical Intel</div>
+        <p id="turnInfo" style="color: var(--neon-blue); margin-bottom: 20px">
+          INITIALIZING...
+        </p>
+
+        <div class="section-title">Parameters</div>
+        <label style="font-size: 11px; color: #666">OPPONENT TYPE</label>
+        <select id="gameTypeSelect">
+          <option value="2Player">LOCAL HUMAN</option>
+          <option value="easy">BABY AI</option>
+          <option value="medium">TEEN AI</option>
+          <option value="hard">GRANDMASTER AI</option>
+        </select>
+
+        <div id="playerColorContainer" style="display: none; margin-top: 10px">
+          <label style="font-size: 11px; color: #666">PLAYER COLOR</label>
+          <select id="playerColorSelect">
+            <option value="white">WHITE (FIRST)</option>
+            <option value="black">BLACK</option>
+          </select>
         </div>
 
-        <!-- RIGHT HUD -->
-        <div class="hud-panel">
-            <div class="section-title">Tactical Intel</div>
-            <p id="turnInfo" style="color: var(--neon-blue); margin-bottom: 20px;">INITIALIZING...</p>
-            
-            <div class="section-title">Parameters</div>
-            <label style="font-size: 11px; color: #666;">OPPONENT TYPE</label>
-            <select id="gameTypeSelect">
-                <option value="2Player">LOCAL HUMAN</option>
-                <option value="easy">BABY AI</option>
-                <option value="medium">TEEN AI</option>
-                <option value="hard">GRANDMASTER AI</option>
-            </select>
+        <button class="btn btn-start" id="btnStart">Engage Match</button>
+        <button class="btn" id="btnReset">Reset System</button>
+        <button class="btn" id="btnResign" disabled>Resign</button>
 
-            <div id="playerColorContainer" style="display:none; margin-top: 10px;">
-                <label style="font-size: 11px; color: #666;">PLAYER COLOR</label>
-                <select id="playerColorSelect">
-                    <option value="white">WHITE (FIRST)</option>
-                    <option value="black">BLACK</option>
-                </select>
-            </div>
-
-            <button class="btn btn-start" id="btnStart">Engage Match</button>
-            <button class="btn" id="btnReset">Reset System</button>
-            <button class="btn" id="btnResign" disabled>Resign</button>
-
-            <div class="section-title" style="margin-top: 30px;">Legend</div>
-            <div style="font-size: 12px; line-height: 2;">
-                <span style="color:var(--neon-blue)">●</span> Migo: Standard unit<br>
-                <span style="color:var(--neon-pink)">◆</span> Yugo: High-energy core<br>
-                <span style="color:var(--neon-gold)">★</span> Igo: 4-Yugo Chain (Win)
-            </div>
+        <div class="section-title" style="margin-top: 30px">Legend</div>
+        <div style="font-size: 12px; line-height: 2">
+          <span style="color: var(--neon-blue)">●</span> Migo: Standard unit<br />
+          <span style="color: var(--neon-pink)">◆</span> Yugo: High-energy
+          core<br />
+          <span style="color: var(--neon-gold)">★</span> Igo: 4-Yugo Chain (Win)
         </div>
+      </div>
     </div>
 
     <div id="gameModal">
-        <div class="modal-box">
-            <h2 id="modalTitle">MATCH END</h2>
-            <p id="modalMessage" style="font-size: 1.2rem; margin-bottom: 30px;"></p>
-            <button class="btn btn-start" onclick="closeModal()">Return to Base</button>
-        </div>
+      <div class="modal-box">
+        <h2 id="modalTitle">MATCH END</h2>
+        <p id="modalMessage" style="font-size: 1.2rem; margin-bottom: 30px"></p>
+        <button class="btn btn-start" onclick="closeModal()">
+          Return to Base
+        </button>
+      </div>
     </div>
 
-<script>
-// --- CORE GAME CONSTANTS ---
-const GRID_SIZE = 8;
-let gameBoard = [];
-let gameActive = false;
-let currentTurn = 2; // 2=White, 1=Black
-let playerPiece = 2, opponentPiece = 1;
-let gameType = '2Player';
-let startTime = 0;
-let timerInt = null;
-let aiThinking = false;
+    <script>
+      // --- CORE GAME CONSTANTS ---
+      const GRID_SIZE = 8;
+      let gameBoard = [];
+      let warningMessage = "";
+      let warningTimer = 0;
+      let gameActive = false;
+      let currentTurn = 2; // 2=White, 1=Black
+      let playerPiece = 2,
+        opponentPiece = 1;
+      let gameType = "2Player";
+      let startTime = 0;
+      let timerInt = null;
+      let aiThinking = false;
 
-// --- ANIMATION ENGINE ---
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const cellSize = canvas.width / GRID_SIZE;
-let particles = [];
-let mouse = { x: -100, y: -100, gridR: -1, gridC: -1 };
-let pieceAnimations = []; // {r, c, type, size, opacity}
+      // --- ANIMATION ENGINE ---
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      const cellSize = canvas.width / GRID_SIZE;
+      let particles = [];
+      let mouse = { x: -100, y: -100, gridR: -1, gridC: -1 };
 
-class Particle {
-    constructor(x, y, color) {
-        this.x = x; this.y = y;
-        this.color = color;
-        this.vx = (Math.random() - 0.5) * 10;
-        this.vy = (Math.random() - 0.5) * 10;
-        this.life = 1.0;
-        this.decay = 0.02 + Math.random() * 0.02;
-    }
-    update() {
-        this.x += this.vx; this.y += this.vy;
-        this.life -= this.decay;
-    }
-    draw() {
-        ctx.globalAlpha = this.life;
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 3, 0, Math.PI*2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-    }
-}
+      class Particle {
+        constructor(x, y, color) {
+          this.x = x;
+          this.y = y;
+          this.color = color;
+          this.vx = (Math.random() - 0.5) * 10;
+          this.vy = (Math.random() - 0.5) * 10;
+          this.life = 1.0;
+          this.decay = 0.02 + Math.random() * 0.02;
+        }
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+          this.life -= this.decay;
+        }
+        draw() {
+          ctx.globalAlpha = this.life;
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
 
-function createBurst(r, c, color) {
-    const x = c * cellSize + cellSize/2;
-    const y = r * cellSize + cellSize/2;
-    for(let i=0; i<20; i++) particles.push(new Particle(x, y, color));
-    
-    // Screen Shake
-    canvas.classList.add('shake');
-    setTimeout(() => canvas.classList.remove('shake'), 400);
-}
+      function createBurst(r, c, color) {
+        const x = c * cellSize + cellSize / 2;
+        const y = r * cellSize + cellSize / 2;
+        for (let i = 0; i < 20; i++) particles.push(new Particle(x, y, color));
+        canvas.classList.add("shake");
+        setTimeout(() => canvas.classList.remove("shake"), 400);
+      }
 
-// --- GAME LOGIC (Retained & Optimized) ---
-function initBoard() {
-    gameBoard = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(0));
-    pieceAnimations = [];
-    currentTurn = 2;
-}
+      function initBoard() {
+        gameBoard = Array.from({ length: GRID_SIZE }, () =>
+          Array(GRID_SIZE).fill(0),
+        );
+        currentTurn = 2;
+      }
 
-function inBounds(r, c) { return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE; }
-function isSameColor(r, c, base) {
-    const v = inBounds(r, c) ? gameBoard[r][c] : 0;
-    return (base === 1) ? (v === 1 || v === 3) : (v === 2 || v === 4);
-}
+      function inBounds(r, c) {
+        return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
+      }
 
-function isValidMove(r, c, base) {
-    if (!inBounds(r, c) || gameBoard[r][c] !== 0) return false;
-    // No long lines rule
-    gameBoard[r][c] = base;
-    let illegal = false;
-    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
-    for(let [dr, dc] of dirs) {
-        let count = 1;
-        let nr = r+dr, nc = c+dc; while(inBounds(nr,nc) && isSameColor(nr,nc,base)) { count++; nr+=dr; nc+=dc; }
-        nr = r-dr; nc = c-dc; while(inBounds(nr,nc) && isSameColor(nr,nc,base)) { count++; nr-=dr; nc-=dc; }
-        if(count > 4) illegal = true;
-    }
-    gameBoard[r][c] = 0;
-    return !illegal;
-}
+      function isSameColor(r, c, base) {
+        const v = inBounds(r, c) ? gameBoard[r][c] : 0;
+        return base === 1 ? v === 1 || v === 3 : v === 2 || v === 4;
+      }
 
-function checkAndCapture(r, c, base) {
-    let createdYugo = false;
-    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
-    for(let [dr, dc] of dirs) {
-        let cells = [[r,c]];
-        let nr = r+dr, nc = c+dc; while(inBounds(nr,nc) && isSameColor(nr,nc,base)) { cells.push([nr,nc]); nr+=dr; nc+=dc; }
-        nr = r-dr; nc = c-dc; while(inBounds(nr,nc) && isSameColor(nr,nc,base)) { cells.unshift([nr,nc]); nr-=dr; nc-=dc; }
-        
-        if(cells.length === 4) {
+      function isValidMove(r, c, base) {
+        if (!inBounds(r, c) || gameBoard[r][c] !== 0) return false;
+        gameBoard[r][c] = base;
+        let illegal = false;
+        const dirs = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1],
+        ];
+        for (let [dr, dc] of dirs) {
+          let count = 1;
+          let nr = r + dr,
+            nc = c + dc;
+          while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
+            count++;
+            nr += dr;
+            nc += dc;
+          }
+          nr = r - dr;
+          nc = c - dc;
+          while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
+            count++;
+            nr -= dr;
+            nc -= dc;
+          }
+          if (count > 4) illegal = true;
+        }
+        gameBoard[r][c] = 0;
+        return !illegal;
+      }
+
+      // FIX: Memperbaiki mekanisme Multi-Yugo Combo agar tidak saling menghapus sebelum didata
+      function checkAndCapture(r, c, base) {
+        let createdYugo = false;
+        const dirs = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1],
+        ];
+        const cellsToRemove = new Set();
+
+        for (let [dr, dc] of dirs) {
+          let cells = [`${r},${c}`];
+          let nr = r + dr,
+            nc = c + dc;
+          while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
+            cells.push(`${nr},${nc}`);
+            nr += dr;
+            nc += dc;
+          }
+          nr = r - dr;
+          nc = c - dc;
+          while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
+            cells.unshift(`${nr},${nc}`);
+            nr -= dr;
+            nc -= dc;
+          }
+
+          if (cells.length === 4) {
             createdYugo = true;
-            cells.forEach(([cr, cc]) => {
-                if(gameBoard[cr][cc] < 3) gameBoard[cr][cc] = 0; 
-            });
+            cells.forEach((coord) => cellsToRemove.add(coord));
+          }
         }
-    }
-    if(createdYugo) {
-        gameBoard[r][c] = (base === 1) ? 3 : 4;
-        createBurst(r, c, base === 1 ? '#ff007b' : '#00f2ff');
-    }
-}
 
-function checkIgo(base) {
-    const yugo = (base === 1) ? 3 : 4;
-    for(let r=0; r<GRID_SIZE; r++) {
-        for(let c=0; c<GRID_SIZE; c++) {
-            if(gameBoard[r][c] !== yugo) continue;
-            for(let [dr, dc] of [[0,1],[1,0],[1,1],[1,-1]]) {
-                let count = 0, nr = r, nc = c;
-                while(inBounds(nr,nc) && gameBoard[nr][nc] === yugo) { count++; nr+=dr; nc+=dc; }
-                if(count >= 4) return true;
+        if (createdYugo) {
+          cellsToRemove.forEach((coord) => {
+            const [cr, cc] = coord.split(",").map(Number);
+            if (cr !== r || cc !== c) {
+              gameBoard[cr][cc] = 0; // Hapus Migo lama selain titik tumpu utama
             }
+          });
+          gameBoard[r][c] = base === 1 ? 3 : 4; // Evolusi titik utama menjadi YUGO
+          createBurst(r, c, base === 1 ? "#ff007b" : "#00f2ff");
         }
-    }
-    return false;
-}
+      }
 
-// --- MAIN LOOP ---
-function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw Grid with Pulse
-    const pulse = Math.sin(Date.now() / 500) * 0.1 + 0.2;
-    ctx.strokeStyle = `rgba(0, 242, 255, ${pulse})`;
-    ctx.lineWidth = 1;
-    for(let i=0; i<=GRID_SIZE; i++) {
-        ctx.beginPath(); ctx.moveTo(i*cellSize, 0); ctx.lineTo(i*cellSize, canvas.height); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, i*cellSize); ctx.lineTo(canvas.width, i*cellSize); ctx.stroke();
-    }
+      function checkIgo(base) {
+        const yugo = base === 1 ? 3 : 4;
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < GRID_SIZE; c++) {
+            if (gameBoard[r][c] !== yugo) continue;
+            for (let [dr, dc] of [
+              [0, 1],
+              [1, 0],
+              [1, 1],
+              [1, -1],
+            ]) {
+              let count = 0,
+                nr = r,
+                nc = c;
+              while (inBounds(nr, nc) && gameBoard[nr][nc] === yugo) {
+                count++;
+                nr += dr;
+                nc += dc;
+              }
+              if (count >= 4) return true;
+            }
+          }
+        }
+        return false;
+      }
 
-    // Ghost Piece / Targeting
-    if(gameActive && !aiThinking && mouse.gridR !== -1) {
-        if(isValidMove(mouse.gridR, mouse.gridC, currentTurn)) {
-            ctx.fillStyle = currentTurn === 2 ? "rgba(0, 242, 255, 0.2)" : "rgba(255, 0, 123, 0.2)";
+      // FIX: Mengecek apakah ada pergerakan legal yang tersisa di papan (Untuk aturan WEGO)
+      function hasLegalMoves(base) {
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < GRID_SIZE; c++) {
+            if (isValidMove(r, c, base)) return true;
+          }
+        }
+        return false;
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const pulse = Math.sin(Date.now() / 500) * 0.1 + 0.2;
+        ctx.strokeStyle = `rgba(0, 242, 255, ${pulse})`;
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= GRID_SIZE; i++) {
+          ctx.beginPath();
+          ctx.moveTo(i * cellSize, 0);
+          ctx.lineTo(i * cellSize, canvas.height);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, i * cellSize);
+          ctx.lineTo(canvas.width, i * cellSize);
+          ctx.stroke();
+        }
+
+        if (gameActive && !aiThinking && mouse.gridR !== -1) {
+          if (isValidMove(mouse.gridR, mouse.gridC, currentTurn)) {
+            ctx.fillStyle =
+              currentTurn === 2
+                ? "rgba(0, 242, 255, 0.2)"
+                : "rgba(255, 0, 123, 0.2)";
             ctx.beginPath();
-            ctx.arc(mouse.gridC*cellSize + cellSize/2, mouse.gridR*cellSize + cellSize/2, cellSize*0.35, 0, Math.PI*2);
+            ctx.arc(
+              mouse.gridC * cellSize + cellSize / 2,
+              mouse.gridR * cellSize + cellSize / 2,
+              cellSize * 0.35,
+              0,
+              Math.PI * 2,
+            );
             ctx.fill();
-            // Targeting Reticle
-            ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-            const tx = mouse.gridC*cellSize, ty = mouse.gridR*cellSize;
-            ctx.strokeRect(tx+5, ty+5, cellSize-10, cellSize-10);
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            const tx = mouse.gridC * cellSize,
+              ty = mouse.gridR * cellSize;
+            ctx.strokeRect(tx + 5, ty + 5, cellSize - 10, cellSize - 10);
+          }
         }
-    }
 
-    // Draw Pieces
-    for(let r=0; r<GRID_SIZE; r++) {
-        for(let c=0; c<GRID_SIZE; c++) {
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < GRID_SIZE; c++) {
             const val = gameBoard[r][c];
-            if(val === 0) continue;
+            if (val === 0) continue;
 
-            const x = c * cellSize + cellSize/2;
-            const y = r * cellSize + cellSize/2;
-            const isBlack = (val === 1 || val === 3);
-            const isYugo = (val >= 3);
+            const x = c * cellSize + cellSize / 2;
+            const y = r * cellSize + cellSize / 2;
+            const isBlack = val === 1 || val === 3;
+            const isYugo = val >= 3;
 
-            // Piece Body
             ctx.shadowBlur = isYugo ? 20 : 5;
             ctx.shadowColor = isBlack ? "#ff007b" : "#00f2ff";
-            
-            const grad = ctx.createRadialGradient(x-5, y-5, 0, x, y, cellSize*0.4);
-            if(isBlack) { grad.addColorStop(0, "#440022"); grad.addColorStop(1, "#110005"); }
-            else { grad.addColorStop(0, "#eef"); grad.addColorStop(1, "#002244"); }
+
+            const grad = ctx.createRadialGradient(
+              x - 5,
+              y - 5,
+              0,
+              x,
+              y,
+              cellSize * 0.4,
+            );
+            if (isBlack) {
+              grad.addColorStop(0, "#440022");
+              grad.addColorStop(1, "#110005");
+            } else {
+              grad.addColorStop(0, "#eef");
+              grad.addColorStop(1, "#002244");
+            }
 
             ctx.fillStyle = grad;
             ctx.beginPath();
-            if(isYugo) {
-                // Diamond shape for Yugo
-                ctx.moveTo(x, y - cellSize*0.4);
-                ctx.lineTo(x + cellSize*0.4, y);
-                ctx.lineTo(x, y + cellSize*0.4);
-                ctx.lineTo(x - cellSize*0.4, y);
-                ctx.closePath();
+            if (isYugo) {
+              ctx.moveTo(x, y - cellSize * 0.4);
+              ctx.lineTo(x + cellSize * 0.4, y);
+              ctx.lineTo(x, y + cellSize * 0.4);
+              ctx.lineTo(x - cellSize * 0.4, y);
+              ctx.closePath();
             } else {
-                ctx.arc(x, y, cellSize*0.35, 0, Math.PI*2);
+              ctx.arc(x, y, cellSize * 0.35, 0, Math.PI * 2);
             }
             ctx.fill();
-            
-            // Piece Highlight / Border
+
             ctx.strokeStyle = isBlack ? "#ff007b" : "#00f2ff";
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Core Glow for Yugo
-            if(isYugo) {
-                ctx.fillStyle = "#fff";
-                ctx.shadowBlur = 10;
-                ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+            if (isYugo) {
+              ctx.fillStyle = "#fff";
+              ctx.shadowBlur = 10;
+              ctx.beginPath();
+              ctx.arc(x, y, 4, 0, Math.PI * 2);
+              ctx.fill();
             }
             ctx.shadowBlur = 0;
+          }
         }
-    }
 
-    // Update Particles
-    for(let i=particles.length-1; i>=0; i--) {
-        particles[i].update();
-        particles[i].draw();
-        if(particles[i].life <= 0) particles.splice(i, 1);
-    }
+        // if (warningTimer > 0) {
+        //   ctx.save();
+        //   ctx.fillStyle = "rgba(255, 0, 123, 0.85)"; // Warna neon pink transparan
+        //   ctx.fillRect(0, canvas.height / 2 - 40, canvas.width, 80); // Background bar pesan
 
-    requestAnimationFrame(animate);
-}
+        //   ctx.font = "bold 24px 'Orbitron', sans-serif";
+        //   ctx.fillStyle = "#ffffff";
+        //   ctx.textAlign = "center";
+        //   ctx.textBaseline = "middle";
+        //   ctx.shadowBlur = 10;
+        //   ctx.shadowColor = "#ff007b";
 
-// --- INTERACTION ---
-canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - rect.left;
-    mouse.y = e.clientY - rect.top;
-    mouse.gridC = Math.floor(mouse.x / (rect.width / GRID_SIZE));
-    mouse.gridR = Math.floor(mouse.y / (rect.height / GRID_SIZE));
-});
+        //   ctx.fillText(warningMessage, canvas.width / 2, canvas.height / 2);
+        //   ctx.restore();
 
-canvas.addEventListener('click', () => {
-    if(!gameActive || aiThinking) return;
-    if(makeMove(mouse.gridR, mouse.gridC, currentTurn)) {
-        afterMove();
-    }
-});
+        //   warningTimer--; // Kurangi durasi setiap frame animasi
+        // }
 
-function makeMove(r, c, base) {
-    if(!isValidMove(r, c, base)) return false;
-    gameBoard[r][c] = base;
-    checkAndCapture(r, c, base);
-    return true;
-}
-
-function afterMove() {
-    updateScore();
-    if(checkIgo(currentTurn)) {
-        endGame(`IGO DETECTED: ${currentTurn === 2 ? 'WHITE' : 'BLACK'} WINS`);
-        return;
-    }
-    
-    currentTurn = (currentTurn === 1) ? 2 : 1;
-    updateUI();
-
-    if(gameActive && gameType !== '2Player' && currentTurn === opponentPiece) {
-        aiThinking = true;
-        setTimeout(aiMove, 800);
-    }
-}
-
-function aiMove() {
-    const moves = [];
-    for(let r=0; r<GRID_SIZE; r++) {
-        for(let c=0; c<GRID_SIZE; c++) {
-            if(isValidMove(r, c, currentTurn)) moves.push([r,c]);
+        for (let i = particles.length - 1; i >= 0; i--) {
+          particles[i].update();
+          particles[i].draw();
+          if (particles[i].life <= 0) particles.splice(i, 1);
         }
-    }
-    if(moves.length > 0) {
-        const pick = moves[Math.floor(Math.random() * moves.length)];
-        makeMove(pick[0], pick[1], currentTurn);
-        afterMove();
-    }
-    aiThinking = false;
-}
 
-// --- UI UPDATES ---
-function updateUI() {
-    document.getElementById('cardWhite').classList.toggle('active', currentTurn === 2);
-    document.getElementById('cardBlack').classList.toggle('active', currentTurn === 1);
-    document.getElementById('cardBlack').classList.toggle('black-turn', currentTurn === 1);
-    document.getElementById('turnInfo').innerText = aiThinking ? "AI ANALYZING..." : "AWAITING COMMAND...";
-}
+        requestAnimationFrame(animate);
+      }
 
-function updateScore() {
-    let w=0, b=0;
-    gameBoard.forEach(row => row.forEach(cell => {
-        if(cell === 4) w++; if(cell === 3) b++;
-    }));
-    document.getElementById('scoreWhite').innerText = w;
-    document.getElementById('scoreBlack').innerText = b;
-}
+      canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+        mouse.gridC = Math.floor(mouse.x / (rect.width / GRID_SIZE));
+        mouse.gridR = Math.floor(mouse.y / (rect.height / GRID_SIZE));
+      });
 
-function updateTimer() {
-    const diff = Math.floor((Date.now() - startTime) / 1000);
-    const m = String(Math.floor(diff/60)).padStart(2,'0');
-    const s = String(diff%60).padStart(2,'0');
-    document.getElementById('timerDisplay').innerText = `${m}:${s}`;
-}
+      let notificationTimeout; // Variabel pembantu untuk mereset timer notifikasi
 
-document.getElementById('btnStart').onclick = () => {
-    gameType = document.getElementById('gameTypeSelect').value;
-    if(gameType !== '2Player') {
-        playerPiece = document.getElementById('playerColorSelect').value === 'white' ? 2 : 1;
-        opponentPiece = (playerPiece === 1) ? 2 : 1;
-    }
-    initBoard();
-    gameActive = true;
-    startTime = Date.now();
-    timerInt = setInterval(updateTimer, 1000);
-    document.getElementById('btnResign').disabled = false;
-    updateUI();
-};
+      canvas.addEventListener("click", () => {
+        if (!gameActive || aiThinking) return;
 
-document.getElementById('btnReset').onclick = () => location.reload();
+        if (!isValidMove(mouse.gridR, mouse.gridC, currentTurn)) {
+          if (
+            inBounds(mouse.gridR, mouse.gridC) &&
+            gameBoard[mouse.gridR][mouse.gridC] === 0
+          ) {
+            // AMBIL ELEMEN NOTIFIKASI LAYAR
+            const notif = document.getElementById("illegalNotification");
 
-function endGame(msg) {
-    gameActive = false;
-    clearInterval(timerInt);
-    document.getElementById('modalTitle').innerText = "MISSION COMPLETE";
-    document.getElementById('modalMessage').innerText = msg;
-    document.getElementById('gameModal').style.display = 'flex';
-}
+            // Reset timeout jika pemain mengklik ilegal berkali-kali secara cepat
+            clearTimeout(notificationTimeout);
 
-function closeModal() { document.getElementById('gameModal').style.display = 'none'; }
+            // Tampilkan notifikasi di layar
+            notif.classList.add("show");
 
-document.getElementById('gameTypeSelect').onchange = function() {
-    document.getElementById('playerColorContainer').style.display = (this.value === '2Player') ? 'none' : 'block';
-};
+            // Berikan efek getar pada papan permainan
+            canvas.classList.add("shake");
+            setTimeout(() => canvas.classList.remove("shake"), 400);
 
-// INITIALIZE
-initBoard();
-animate();
-</script>
-</body>
+            // Sembunyikan kembali setelah 1.5 detik (1500ms)
+            notificationTimeout = setTimeout(() => {
+              notif.classList.remove("show");
+            }, 1500);
+          }
+          return;
+        }
+
+        if (makeMove(mouse.gridR, mouse.gridC, currentTurn)) {
+          afterMove();
+        }
+      });
+
+      function makeMove(r, c, base) {
+        if (!isValidMove(r, c, base)) return false;
+        gameBoard[r][c] = base;
+        checkAndCapture(r, c, base);
+        return true;
+      }
+
+      // FIX: Menambahkan validasi akhir game berdasarkan aturan WEGO (Skor terbanyak saat langkah habis)
+      function afterMove() {
+        updateScore();
+        if (checkIgo(currentTurn)) {
+          endGame(
+            `IGO DETECTED: ${currentTurn === 2 ? "WHITE" : "BLACK"} WINS`,
+          );
+          return;
+        }
+
+        let nextTurn = currentTurn === 1 ? 2 : 1;
+
+        if (!hasLegalMoves(nextTurn)) {
+          // Aturan WEGO Tie-breaker
+          let w = parseInt(document.getElementById("scoreWhite").innerText);
+          let b = parseInt(document.getElementById("scoreBlack").innerText);
+          if (w > b) {
+            endGame(
+              `WEGO WIN: NO MOVES LEFT. WHITE WINS BY YUGO COUNT (${w} vs ${b})`,
+            );
+          } else if (b > w) {
+            endGame(
+              `WEGO WIN: NO MOVES LEFT. BLACK WINS BY YUGO COUNT (${b} vs ${w})`,
+            );
+          } else {
+            endGame(`MATCH DRAW: NO MOVES LEFT AND EQUAL YUGO CORES.`);
+          }
+          return;
+        }
+
+        currentTurn = nextTurn;
+        updateUI();
+
+        if (
+          gameActive &&
+          gameType !== "2Player" &&
+          currentTurn === opponentPiece
+        ) {
+          aiThinking = true;
+          setTimeout(aiMove, 600);
+        }
+      }
+
+      // FIX: Mengembangkan kecerdasan buatan dari Random menjadi Taktis sesuai level pilihan
+      function aiMove() {
+        const moves = [];
+        for (let r = 0; r < GRID_SIZE; r++) {
+          for (let c = 0; c < GRID_SIZE; c++) {
+            if (isValidMove(r, c, currentTurn)) moves.push({ r, c, score: 0 });
+          }
+        }
+
+        if (moves.length > 0) {
+          let pick = moves[Math.floor(Math.random() * moves.length)]; // Default Easy
+
+          if (gameType === "medium" || gameType === "hard") {
+            // Evaluasi langkah taktis sederhana
+            moves.forEach((m) => {
+              // Beri nilai tinggi jika langkah tersebut menghasilkan Yugo
+              gameBoard[m.r][m.c] = currentTurn;
+              const dirs = [
+                [0, 1],
+                [1, 0],
+                [1, 1],
+                [1, -1],
+              ];
+              for (let [dr, dc] of dirs) {
+                let count = 1;
+                let nr = m.r + dr,
+                  nc = m.c + dc;
+                while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) {
+                  count++;
+                  nr += dr;
+                  nc += dc;
+                }
+                nr = m.r - dr;
+                nc = m.c - dc;
+                while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) {
+                  count++;
+                  nr -= dr;
+                  nc -= dc;
+                }
+                if (count === 4) m.score += 50; // Prioritas serang
+                if (count === 3) m.score += 10;
+              }
+              gameBoard[m.r][m.c] = 0;
+
+              // Mode Hard: Analisis juga untuk memblokir musuh
+              if (gameType === "hard") {
+                let enemy = currentTurn === 1 ? 2 : 1;
+                gameBoard[m.r][m.c] = enemy;
+                for (let [dr, dc] of dirs) {
+                  let count = 1;
+                  let nr = m.r + dr,
+                    nc = m.c + dc;
+                  while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) {
+                    count++;
+                    nr += dr;
+                    nc += dc;
+                  }
+                  nr = m.r - dr;
+                  nc = m.c - dc;
+                  while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) {
+                    count++;
+                    nr -= dr;
+                    nc -= dc;
+                  }
+                  if (count === 4) m.score += 40; // Prioritas blokir pertahanan musuh
+                }
+                gameBoard[m.r][m.c] = 0;
+              }
+            });
+            moves.sort((a, b) => b.score - a.score);
+            pick = moves[0];
+          }
+
+          makeMove(pick.r, pick.c, currentTurn);
+          afterMove();
+        }
+        aiThinking = false;
+      }
+
+      function updateUI() {
+        document
+          .getElementById("cardWhite")
+          .classList.toggle("active", currentTurn === 2);
+        document
+          .getElementById("cardBlack")
+          .classList.toggle("active", currentTurn === 1);
+        document.getElementById("turnInfo").innerText = aiThinking
+          ? "AI ANALYZING..."
+          : "AWAITING COMMAND...";
+      }
+
+      function updateScore() {
+        let w = 0,
+          b = 0;
+        gameBoard.forEach((row) =>
+          row.forEach((cell) => {
+            if (cell === 4) w++;
+            if (cell === 3) b++;
+          }),
+        );
+        document.getElementById("scoreWhite").innerText = w;
+        document.getElementById("scoreBlack").innerText = b;
+      }
+
+      function updateTimer() {
+        const diff = Math.floor((Date.now() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, "0");
+        const s = String(diff % 60).padStart(2, "0");
+        document.getElementById("timerDisplay").innerText = `${m}:${s}`;
+      }
+
+      document.getElementById("btnStart").onclick = () => {
+        gameType = document.getElementById("gameTypeSelect").value;
+        if (gameType !== "2Player") {
+          playerPiece =
+            document.getElementById("playerColorSelect").value === "white"
+              ? 2
+              : 1;
+          opponentPiece = playerPiece === 1 ? 2 : 1;
+        }
+        initBoard();
+        gameActive = true;
+        startTime = Date.now();
+        if (timerInt) clearInterval(timerInt);
+        timerInt = setInterval(updateTimer, 1000);
+        document.getElementById("btnResign").disabled = false;
+        updateUI();
+        updateScore();
+
+        // Jika AI jalan duluan (Player milih Hitam saat melawan bot)
+        if (gameType !== "2Player" && currentTurn === opponentPiece) {
+          aiThinking = true;
+          setTimeout(aiMove, 600);
+        }
+      };
+
+      document.getElementById("btnReset").onclick = () => location.reload();
+      document.getElementById("btnResign").onclick = () => {
+        endGame(
+          `TACTICAL RESIGNATION: ${currentTurn === 2 ? "WHITE" : "BLACK"} SURRENDERED.`,
+        );
+      };
+
+      function endGame(msg) {
+        gameActive = false;
+        clearInterval(timerInt);
+        document.getElementById("modalTitle").innerText = "MISSION COMPLETE";
+        document.getElementById("modalMessage").innerText = msg;
+        document.getElementById("gameModal").style.display = "flex";
+      }
+
+      function closeModal() {
+        document.getElementById("gameModal").style.display = "none";
+      }
+
+      document.getElementById("gameTypeSelect").onchange = function () {
+        document.getElementById("playerColorContainer").style.display =
+          this.value === "2Player" ? "none" : "block";
+      };
+
+      // INITIALIZE
+      initBoard();
+      animate();
+    </script>
+  </body>
 </html>
