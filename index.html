@@ -387,6 +387,9 @@
       let boardHistory = [];
       let reviewIndex = -1;
       let isReviewMode = false;
+      
+      // Tracking vector count for each yugo (key: "row,col", value: number of vectors)
+      let yugoVectors = new Map();
 
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
@@ -549,6 +552,7 @@
           [1, -1],
         ];
         const cellsToRemove = new Set();
+        let vectorCount = 0;  // Track how many vectors form the yugo
 
         for (let [dr, dc] of dirs) {
           let cells = [`${r},${c}`];
@@ -568,6 +572,7 @@
           }
           if (cells.length === 4) {
             createdYugo = true;
+            vectorCount++;  // Count this vector
             cells.forEach((coord) => cellsToRemove.add(coord));
           }
         }
@@ -575,9 +580,17 @@
         if (createdYugo) {
           cellsToRemove.forEach((coord) => {
             const [cr, cc] = coord.split(",").map(Number);
-            if (cr !== r || cc !== c) gameBoard[cr][cc] = 0;
+            const cellValue = gameBoard[cr][cc];
+            // Hanya hapus piece biasa, jangan hapus yugo yang sudah ada dan jangan hapus piece yang baru ditempatkan
+            if (cr !== r || cc !== c) {
+              if ((base === 1 && cellValue === 1) || (base === 2 && cellValue === 2)) {
+                gameBoard[cr][cc] = 0;
+              }
+            }
           });
           gameBoard[r][c] = base === 1 ? 3 : 4;
+          // Store the vector count for this yugo
+          yugoVectors.set(`${r},${c}`, vectorCount);
           createBurst(r, c, base === 1 ? "#21140c" : "#fcf3e3");
         }
       }
@@ -710,27 +723,52 @@
 
             ctx.fillStyle = grad;
             ctx.beginPath();
-            if (isYugo) {
-              ctx.moveTo(x, y - cellSize * 0.38);
-              ctx.lineTo(x + cellSize * 0.38, y);
-              ctx.lineTo(x, y + cellSize * 0.38);
-              ctx.lineTo(x - cellSize * 0.38, y);
-              ctx.closePath();
-            } else {
-              ctx.arc(x, y, cellSize * 0.33, 0, Math.PI * 2);
-            }
+            // Yugo adalah selalu lingkaran
+            ctx.arc(x, y, cellSize * 0.33, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.strokeStyle = isBlack ? "#000000" : "#ba9e7b";
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
+            // Menggambar center marker untuk yugo berdasarkan jumlah vector
             if (isYugo) {
-              ctx.strokeStyle = "#dfb76c";
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.arc(x, y, 6, 0, Math.PI * 2);
-              ctx.stroke();
+              const vectors = yugoVectors.get(`${r},${c}`) || 1;
+              ctx.fillStyle = "#ff4444";
+              ctx.strokeStyle = "#ff0000";
+              ctx.lineWidth = 1.5;
+
+              if (vectors === 1) {
+                // Standard Node: red dot
+                ctx.beginPath();
+                ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+              } else if (vectors === 2) {
+                // Double Node: red horizontal oval
+                ctx.beginPath();
+                ctx.ellipse(x, y, 6, 3, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+              } else if (vectors === 3) {
+                // Triple Node: red triangle
+                ctx.beginPath();
+                ctx.moveTo(x, y - 5.5);
+                ctx.lineTo(x + 4.8, y + 3);
+                ctx.lineTo(x - 4.8, y + 3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+              } else if (vectors === 4) {
+                // Quadruple Node: red diamond
+                ctx.beginPath();
+                ctx.moveTo(x, y - 5);
+                ctx.lineTo(x + 5, y);
+                ctx.lineTo(x, y + 5);
+                ctx.lineTo(x - 5, y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+              }
             }
           }
         }
@@ -958,6 +996,7 @@
         boardHistory = [];
         reviewIndex = -1;
         isReviewMode = false;
+        yugoVectors.clear();  // Reset yugo vector tracking
         document.getElementById("moveHistoryPanel").innerHTML =
           '<div style="opacity: 0.5; text-align: center; margin-top: 50px;">No moves recorded</div>';
         document.getElementById("reviewControls").style.display = "none";
