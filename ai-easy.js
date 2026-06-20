@@ -24,45 +24,55 @@ function easyAI(board, piece) {
         { dr: 1, dc: 1 },   // diagonal \
         { dr: 1, dc: -1 }   // diagonal /
     ];
-    
-    // First, check for winning moves
-    for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-            if (board[r][c] === 0) {
-                // Test this move
-                for (const dir of DIRECTIONS) {
-                    let count = 1;
-                    
-                    // Count in positive direction
-                    let rr = r + dir.dr, cc = c + dir.dc;
-                    while (rr >= 0 && rr < GRID_SIZE && cc >= 0 && cc < GRID_SIZE && 
-                           (board[rr][cc] === piece || board[rr][cc] === piece + 2)) {
-                        count++;
-                        rr += dir.dr;
-                        cc += dir.dc;
+
+    function findWinningMove(targetPiece) {
+        for (let row = 0; row < GRID_SIZE; row++) {
+            for (let col = 0; col < GRID_SIZE; col++) {
+                if (board[row][col] === 0) {
+                    for (const dir of DIRECTIONS) {
+                        let count = 1;
+
+                        let scanRow = row + dir.dr, scanCol = col + dir.dc;
+                        while (scanRow >= 0 && scanRow < GRID_SIZE && scanCol >= 0 && scanCol < GRID_SIZE && 
+                               (board[scanRow][scanCol] === targetPiece || board[scanRow][scanCol] === targetPiece + 2)) {
+                            count++;
+                            scanRow += dir.dr;
+                            scanCol += dir.dc;
+                        }
+
+                        scanRow = row - dir.dr; scanCol = col - dir.dc;
+                        while (scanRow >= 0 && scanRow < GRID_SIZE && scanCol >= 0 && scanCol < GRID_SIZE && 
+                               (board[scanRow][scanCol] === targetPiece || board[scanRow][scanCol] === targetPiece + 2)) {
+                            count++;
+                            scanRow -= dir.dr;
+                            scanCol -= dir.dc;
+                        }
+
+                        if (count >= 4) return [row, col];
                     }
-                    
-                    // Count in negative direction
-                    rr = r - dir.dr; cc = c - dir.dc;
-                    while (rr >= 0 && rr < GRID_SIZE && cc >= 0 && cc < GRID_SIZE && 
-                           (board[rr][cc] === piece || board[rr][cc] === piece + 2)) {
-                        count++;
-                        rr -= dir.dr;
-                        cc -= dir.dc;
-                    }
-                    
-                    if (count >= 4) return [r, c]; // Winning move!
                 }
             }
         }
+
+        return null;
     }
-    
+
+    const playerPiece = piece === 1 ? 2 : 1;
+
+    // Highest priority: always block player's immediate winning move.
+    const blockingMove = findWinningMove(playerPiece);
+    if (blockingMove) return blockingMove;
+
+    // If no immediate threat from player, try to win.
+    const winningMove = findWinningMove(piece);
+    if (winningMove) return winningMove;
+
     // Otherwise, random valid move
     const validMoves = [];
-    for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-            if (board[r][c] === 0) {
-                validMoves.push([r, c]);
+    for (let row = 0; row < GRID_SIZE; row++) {
+        for (let col = 0; col < GRID_SIZE; col++) {
+            if (board[row][col] === 0) {
+                validMoves.push([row, col]);
             }
         }
     }

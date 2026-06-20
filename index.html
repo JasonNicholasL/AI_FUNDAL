@@ -872,7 +872,7 @@
       }
 
       function aiMove() {
-        let pick;
+        let pick = null;
 
         if (gameType === "easy") {
           pick = dapatkanLangkahMudah(gameBoard, currentTurn);
@@ -892,7 +892,8 @@
         }
 
         if (moves.length > 0) {
-          let pick = moves[Math.floor(Math.random() * moves.length)];
+          // Fallback random move if custom AI returns null/invalid.
+          let fallbackPick = moves[Math.floor(Math.random() * moves.length)];
 
           if (gameType === "medium" || gameType === "hard") {
             moves.forEach((m) => {
@@ -949,10 +950,18 @@
               }
             });
             moves.sort((a, b) => b.score - a.score);
-            pick = moves[0];
+            fallbackPick = moves[0];
           }
 
-          makeMove(pick.r, pick.c, currentTurn);
+          const aiPickIsValid =
+            pick &&
+            Number.isInteger(pick.r) &&
+            Number.isInteger(pick.c) &&
+            isValidMove(pick.r, pick.c, currentTurn);
+
+          const finalPick = aiPickIsValid ? pick : fallbackPick;
+
+          makeMove(finalPick.r, finalPick.c, currentTurn);
           afterMove();
         }
         aiThinking = false;
