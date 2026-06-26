@@ -1,1102 +1,951 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MIGO YUGO - Classic Wood Edition</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Jost:wght@300;400;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --wood-dark: #2c1a11; /* Warna kayu mahoni tua */
-        --wood-medium: #5c3a21; /* Warna kayu cokelat hangat */
-        --wood-light: #cf9a72; /* Warna kayu terang/maple */
-        --wood-tan: #e6c594; /* Warna krem serat kayu */
-        --bg-wood: #1a0f0a;
-        --panel-bg: rgba(44, 26, 17, 0.9);
-        --border-glow: rgba(207, 154, 114, 0.4);
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MIGO YUGO – 3D Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Jost:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --wood-dark: #2c1a11;
+      --wood-medium: #5c3a21;
+      --wood-light: #cf9a72;
+      --wood-tan: #e6c594;
+      --bg-wood: #1a0f0a;
+      --panel-bg: rgba(44, 26, 17, 0.92);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-wood);
+      color: #f7ebd3;
+      font-family: 'Jost', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 10px;
+      text-align: center;
+      flex-shrink: 0;
+      background: linear-gradient(to bottom, #0f0704, transparent);
+    }
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 10px;
+      color: var(--wood-tan);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px var(--wood-light);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 260px;
+      gap: 14px;
+      padding: 0 14px 14px;
+      flex: 1;
+      overflow: hidden;
+    }
+    .hud-panel {
+      background: var(--panel-bg);
+      border: 2px solid var(--wood-medium);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 10px 25px rgba(0,0,0,0.7);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      color: var(--wood-tan);
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--wood-light);
+      padding-bottom: 4px;
+    }
+    .score-card {
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      border-left: 4px solid var(--wood-medium);
+      transition: all 0.3s;
+    }
+    .score-card.active {
+      background: rgba(230,197,148,0.15);
+      border-left-color: var(--wood-tan);
+      transform: translateX(5px);
+    }
+    .score-val {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #fff;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--wood-medium);
+      border: 1px solid var(--wood-light);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .btn:hover { background: var(--wood-light); color: var(--wood-dark); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    select {
+      width: 100%;
+      background: var(--wood-dark);
+      color: #fff;
+      border: 1px solid var(--wood-light);
+      padding: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.82rem;
+      border-radius: 4px;
+    }
+    label { font-size: 11px; color: #a48263; display: block; margin-bottom: 3px; }
+    .canvas-wrap {
+      position: relative;
+      border: 8px solid var(--wood-medium);
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+    #canvas3d { width: 100%; height: 100%; display: block; outline: none; }
+    #hint3d {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: rgba(230,197,148,0.45);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #moveHistoryPanel {
+      background: rgba(0,0,0,0.3);
+      border-radius: 4px;
+      padding: 8px;
+      height: 140px;
+      overflow-y: auto;
+      font-size: 12px;
+      border: 1px solid var(--wood-medium);
+      color: #f7ebd3;
+      line-height: 1.6;
+    }
+    #gameModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+    .modal-box {
+      background: var(--wood-dark);
+      border: 3px double var(--wood-tan);
+      padding: 40px;
+      text-align: center;
+      max-width: 460px;
+      width: 90%;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .modal-box h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      margin-bottom: 16px;
+      color: var(--wood-tan);
+    }
+    .modal-box p { margin-bottom: 24px; font-size: 1rem; }
+    #illegalNotif {
+      position: fixed;
+      top: 22%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #5a1818;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      padding: 12px 28px;
+      border: 2px double var(--wood-tan);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      z-index: 9999;
+      border-radius: 6px;
+      display: none;
+    }
+    #illegalNotif.show { display: block; }
+    #turnInfo { color: var(--wood-light); font-size: 0.85rem; min-height: 1.2em; }
+    #timerDisplay {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      color: var(--wood-tan);
+    }
+    .review-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .review-btns .btn { margin-top: 0; padding: 7px; }
+  </style>
+</head>
 
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+<!-- AI scripts — assumed to exist alongside this file -->
+<script src="ai-easy.js"></script>
+<script src="ai-medium.js"></script>
+<script src="ai-hard.js"></script>
 
-      body {
-        background-color: var(--bg-wood);
-        background-image:
-          radial-gradient(circle at 50% 50%, #3a2214 0%, #1a0f0a 100%),
-          linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-        background-size:
-          100% 100%,
-          40px 40px;
-        color: #f7ebd3;
-        font-family: "Jost", sans-serif;
-        min-height: 100vh;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      }
+<body>
+<header><h1>MIGO YUGO</h1></header>
 
-      header {
-        padding: 15px;
-        text-align: center;
-      }
+<div id="illegalNotif">illegal move — kamu ga bole exceed dari 4 piece</div>
 
-      header h1 {
-        font-family: "Cinzel", serif;
-        font-size: 3rem;
-        font-weight: 900;
-        letter-spacing: 10px;
-        color: var(--wood-tan);
-        text-shadow:
-          2px 2px 4px rgba(0, 0, 0, 0.8),
-          0 0 10px var(--wood-light);
-      }
-
-      .game-container {
-        display: grid;
-        grid-template-columns: 300px 1fr 300px;
-        gap: 20px;
-        padding: 20px;
-        flex: 1;
-        align-items: center;
-        max-width: 1600px;
-        margin: 0 auto;
-      }
-
-      .hud-panel {
-        background: var(--panel-bg);
-        border: 2px solid var(--wood-medium);
-        box-shadow:
-          inset 0 0 20px rgba(0, 0, 0, 0.6),
-          0 10px 25px rgba(0, 0, 0, 0.7);
-        padding: 20px;
-        border-radius: 8px;
-        position: relative;
-      }
-
-      .section-title {
-        font-family: "Cinzel", serif;
-        font-size: 0.9rem;
-        color: var(--wood-tan);
-        margin-bottom: 15px;
-        letter-spacing: 1px;
-        border-bottom: 1px solid var(--wood-light);
-        padding-bottom: 5px;
-      }
-
-      .canvas-wrapper {
-        position: relative;
-        perspective: 1000px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .shake {
-        animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-      }
-
-      @keyframes shake {
-        10%,
-        90% {
-          transform: translate3d(-1px, 0, 0);
-        }
-        20%,
-        80% {
-          transform: translate3d(2px, 0, 0);
-        }
-        30%,
-        50%,
-        70% {
-          transform: translate3d(-4px, 0, 0);
-        }
-        40%,
-        60% {
-          transform: translate3d(4px, 0, 0);
-        }
-      }
-
-      .score-card {
-        margin-bottom: 15px;
-        padding: 15px;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 6px;
-        border-left: 4px solid var(--wood-medium);
-        transition: all 0.3s;
-      }
-
-      .score-card.active {
-        background: rgba(230, 197, 148, 0.15);
-        border-left-color: var(--wood-tan);
-        transform: translateX(5px);
-      }
-
-      .score-val {
-        font-family: "Cinzel", serif;
-        font-size: 2rem;
-        font-weight: 900;
-        color: #fff;
-      }
-
-      .btn {
-        width: 100%;
-        padding: 12px;
-        margin-top: 10px;
-        background: var(--wood-medium);
-        border: 1px solid var(--wood-light);
-        color: #fff;
-        font-family: "Cinzel", serif;
-        font-weight: 700;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      }
-
-      .btn:hover {
-        background: var(--wood-light);
-        color: var(--wood-dark);
-        box-shadow: 0 4px 12px rgba(207, 154, 114, 0.4);
-      }
-
-      #gameModal {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.85);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        backdrop-filter: blur(5px);
-      }
-
-      .modal-box {
-        background: var(--wood-dark);
-        border: 3px double var(--wood-tan);
-        padding: 50px;
-        text-align: center;
-        max-width: 500px;
-        border-radius: 8px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      }
-
-      .modal-box h2 {
-        font-family: "Cinzel", serif;
-        font-size: 2.5rem;
-        margin-bottom: 20px;
-        color: var(--wood-tan);
-      }
-
-      select {
-        width: 100%;
-        background: var(--wood-dark);
-        color: #fff;
-        border: 1px solid var(--wood-light);
-        padding: 10px;
-        font-family: "Jost", sans-serif;
-        margin-bottom: 10px;
-        border-radius: 4px;
-      }
-
-      #gameCanvas {
-        background: #3d2516;
-        border: 10px solid var(--wood-medium);
-        border-radius: 12px;
-        box-shadow:
-          0 20px 40px rgba(0, 0, 0, 0.8),
-          inset 0 0 50px rgba(0, 0, 0, 0.5);
-      }
-
-      #illegalNotification {
-        position: fixed;
-        top: 25%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #5a1818;
-        color: #fff;
-        font-family: "Cinzel", serif;
-        font-size: 1.3rem;
-        padding: 15px 35px;
-        border: 3px double var(--wood-tan);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-        z-index: 9999;
-        display: none;
-        border-radius: 6px;
-      }
-      #illegalNotification.show {
-        display: block;
-      }
-    </style>
-  </head>
-  <script src="ai-easy.js"></script>
-  <script src="ai-medium.js"></script>
-  <script src="ai-hard.js"></script>
-
-  <body>
-    <header>
-      <h1>MIGO YUGO</h1>
-    </header>
-
-    <div id="illegalNotification">
-      illegal move, kamu ga bole exceed dari 4 piece
+<div class="layout">
+  <!-- LEFT PANEL -->
+  <div class="hud-panel">
+    <div class="section-title">System Status</div>
+    <div id="cardWhite" class="score-card active">
+      <div style="font-size:11px;opacity:0.7">CORE // WHITE</div>
+      <div class="score-val" id="scoreWhite">0</div>
+      <div style="font-size:10px">YUGOS DETECTED</div>
     </div>
-
-    <div class="game-container">
-      <div class="hud-panel">
-        <div class="section-title">System Status</div>
-        <div id="cardWhite" class="score-card active">
-          <div style="font-size: 12px; opacity: 0.7">CORE // WHITE</div>
-          <div class="score-val" id="scoreWhite">0</div>
-          <div style="font-size: 11px">YUGOS DETECTED</div>
-        </div>
-        <div id="cardBlack" class="score-card">
-          <div style="font-size: 12px; opacity: 0.7">CORE // BLACK</div>
-          <div class="score-val" id="scoreBlack">0</div>
-          <div style="font-size: 11px">YUGOS DETECTED</div>
-        </div>
-
-        <div class="section-title" style="margin-top: 20px">Match Clock</div>
-        <div
-          id="timerDisplay"
-          style="
-            font-family: &quot;Cinzel&quot;, serif;
-            font-size: 2rem;
-            color: var(--wood-tan);
-            margin-bottom: 15px;
-          "
-        >
-          00:00
-        </div>
-
-        <div class="section-title" style="margin-top: 25px">Move History</div>
-        <div
-          id="moveHistoryPanel"
-          style="
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
-            padding: 10px;
-            height: 160px;
-            overflow-y: auto;
-            font-family: &quot;Jost&quot;, sans-serif;
-            font-size: 13px;
-            border: 1px solid var(--wood-medium);
-            color: #f7ebd3;
-            line-height: 1.6;
-          "
-        >
-          <div style="opacity: 0.5; text-align: center; margin-top: 50px">
-            No moves recorded
-          </div>
-        </div>
-
-        <div
-          id="reviewControls"
-          style="
-            display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-          "
-        >
-          <button
-            class="btn"
-            id="btnPrevMove"
-            style="margin-top: 0; padding: 8px"
-          >
-            ◀ Prev
-          </button>
-          <button
-            class="btn"
-            id="btnNextMove"
-            style="margin-top: 0; padding: 8px"
-          >
-            Next ▶
-          </button>
-        </div>
-      </div>
-
-      <div class="canvas-wrapper">
-        <canvas id="gameCanvas" width="700" height="700"></canvas>
-      </div>
-
-      <div class="hud-panel">
-        <div class="section-title">Tactical Intel</div>
-        <p id="turnInfo" style="color: var(--wood-light); margin-bottom: 20px">
-          INITIALIZING...
-        </p>
-
-        <div class="section-title">Parameters</div>
-        <label style="font-size: 11px; color: #a48263">OPPONENT TYPE</label>
-        <select id="gameTypeSelect">
-          <option value="2Player">LOCAL HUMAN</option>
-          <option value="easy">BABY AI</option>
-          <option value="medium">TEEN AI</option>
-          <option value="hard">GRANDMASTER AI</option>
-        </select>
-
-        <div id="playerColorContainer" style="display: none; margin-top: 10px">
-          <label style="font-size: 11px; color: #a48263">PLAYER COLOR</label>
-          <select id="playerColorSelect">
-            <option value="white">WHITE (FIRST)</option>
-            <option value="black">BLACK</option>
-          </select>
-        </div>
-
-        <button class="btn btn-start" id="btnStart">Engage Match</button>
-        <button class="btn" id="btnReset">Reset System</button>
-        <button class="btn" id="btnResign" disabled>Resign</button>
-
-        <div class="section-title" style="margin-top: 30px">Legend</div>
-        <div style="font-size: 12px; line-height: 2">
-          <span style="color: #fcf3e3">●</span> Migo White: Standard Ivory<br />
-          <span style="color: #21140c">●</span> Migo Black: Standard Ebony<br />
-          <span style="color: var(--wood-tan)">◆</span> Yugo Core: Carved
-          Diamond<br />
-        </div>
-      </div>
+    <div id="cardBlack" class="score-card">
+      <div style="font-size:11px;opacity:0.7">CORE // BLACK</div>
+      <div class="score-val" id="scoreBlack">0</div>
+      <div style="font-size:10px">YUGOS DETECTED</div>
     </div>
-
-    <div id="gameModal">
-      <div class="modal-box">
-        <h2 id="modalTitle">MATCH END</h2>
-        <p id="modalMessage" style="font-size: 1.2rem; margin-bottom: 30px"></p>
-        <button class="btn" onclick="closeModal()">Return to Base</button>
-      </div>
+    <div class="section-title">Match Clock</div>
+    <div id="timerDisplay">00:00</div>
+    <div class="section-title">Move History</div>
+    <div id="moveHistoryPanel">
+      <div style="opacity:0.5;text-align:center;margin-top:40px">No moves recorded</div>
     </div>
+    <div id="reviewControls" style="display:none" class="review-btns">
+      <button class="btn" id="btnPrevMove">◀ Prev</button>
+      <button class="btn" id="btnNextMove">Next ▶</button>
+    </div>
+  </div>
 
-    <script>
-      const GRID_SIZE = 8;
-      let gameBoard = [];
-      let gameActive = false;
-      let currentTurn = 2; // 2=White, 1=Black
-      let playerPiece = 2,
-        opponentPiece = 1;
-      let gameType = "2Player";
-      let startTime = 0;
-      let timerInt = null;
-      let aiThinking = false;
+  <!-- 3D CANVAS -->
+  <div class="canvas-wrap">
+    <canvas id="canvas3d"></canvas>
+    <div id="hint3d">🖱 Drag to orbit · Scroll to zoom · Click to place</div>
+  </div>
 
-      // Variabel untuk Audio & History Review
-      let audioCtx = null;
-      let moveHistory = [];
-      let boardHistory = [];
-      let reviewIndex = -1;
-      let isReviewMode = false;
-      
-      // Tracking vector count for each yugo (key: "row,col", value: number of vectors)
-      let yugoVectors = new Map();
+  <!-- RIGHT PANEL -->
+  <div class="hud-panel">
+    <div class="section-title">Tactical Intel</div>
+    <p id="turnInfo">INITIALIZING...</p>
+    <div class="section-title">Parameters</div>
+    <label>OPPONENT TYPE</label>
+    <select id="gameTypeSelect">
+      <option value="2Player">LOCAL HUMAN</option>
+      <option value="easy">BABY AI</option>
+      <option value="medium">TEEN AI</option>
+      <option value="hard">GRANDMASTER AI</option>
+    </select>
+    <div id="playerColorContainer" style="display:none;margin-top:8px">
+      <label>PLAYER COLOR</label>
+      <select id="playerColorSelect">
+        <option value="white">WHITE (FIRST)</option>
+        <option value="black">BLACK</option>
+      </select>
+    </div>
+    <button class="btn" id="btnStart">Engage Match</button>
+    <button class="btn" id="btnReset">Reset System</button>
+    <button class="btn" id="btnResign" disabled>Resign</button>
+    <div class="section-title" style="margin-top:4px">Legend</div>
+    <div style="font-size:12px;line-height:2">
+      <span style="color:#fcf3e3">●</span> Migo White: Standard Ivory<br>
+      <span style="color:#21140c;-webkit-text-stroke:0.5px #a48263">●</span> Migo Black: Standard Ebony<br>
+      <span style="color:#ff4444">◆</span> Yugo Core: Carved Diamond<br>
+    </div>
+    <div class="section-title">Camera</div>
+    <button class="btn" id="btnResetCam" style="padding:7px;font-size:0.7rem">Reset View</button>
+  </div>
+</div>
 
-      const canvas = document.getElementById("gameCanvas");
-      const ctx = canvas.getContext("2d");
-      const cellSize = canvas.width / GRID_SIZE;
-      let particles = [];
-      let mouse = { x: -100, y: -100, gridR: -1, gridC: -1 };
+<div id="gameModal">
+  <div class="modal-box">
+    <h2 id="modalTitle">MATCH END</h2>
+    <p id="modalMessage"></p>
+    <button class="btn" onclick="document.getElementById('gameModal').style.display='none'">Return to Base</button>
+  </div>
+</div>
 
-      class Particle {
-        constructor(x, y, color) {
-          this.x = x;
-          this.y = y;
-          this.color = color;
-          this.vx = (Math.random() - 0.5) * 6;
-          this.vy = (Math.random() - 0.5) * 6;
-          this.life = 1.0;
-          this.decay = 0.03;
-        }
-        update() {
-          this.x += this.vx;
-          this.y += this.vy;
-          this.life -= this.decay;
-        }
-        draw() {
-          ctx.globalAlpha = this.life;
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.globalAlpha = 1;
-        }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// GAME LOGIC — identical to original index.html
+// ══════════════════════════════════════════════════════════
+const GRID_SIZE = 8;
+let gameBoard = [];
+let gameActive = false;
+let currentTurn = 2; // 2=White, 1=Black
+let playerPiece = 2, opponentPiece = 1;
+let gameType = '2Player';
+let startTime = 0, timerInt = null, aiThinking = false;
+let audioCtx = null;
+let moveHistory = [], boardHistory = [], reviewIndex = -1, isReviewMode = false;
+let yugoVectors = new Map();
+
+function inBounds(r, c) { return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE; }
+
+function isSameColor(r, c, base) {
+  const v = inBounds(r, c) ? gameBoard[r][c] : 0;
+  return base === 1 ? (v === 1 || v === 3) : (v === 2 || v === 4);
+}
+
+function isValidMove(r, c, base) {
+  if (!inBounds(r, c) || gameBoard[r][c] !== 0) return false;
+  gameBoard[r][c] = base;
+  let illegal = false;
+  const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+  for (let [dr, dc] of dirs) {
+    let count = 1, nr = r + dr, nc = c + dc;
+    while (inBounds(nr, nc) && isSameColor(nr, nc, base)) { count++; nr += dr; nc += dc; }
+    nr = r - dr; nc = c - dc;
+    while (inBounds(nr, nc) && isSameColor(nr, nc, base)) { count++; nr -= dr; nc -= dc; }
+    if (count > 4) illegal = true;
+  }
+  gameBoard[r][c] = 0;
+  return !illegal;
+}
+
+function checkAndCapture(r, c, base) {
+  let createdYugo = false;
+  const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+  const cellsToRemove = new Set();
+  let vectorCount = 0;
+  for (let [dr, dc] of dirs) {
+    let cells = [`${r},${c}`];
+    let nr = r + dr, nc = c + dc;
+    while (inBounds(nr, nc) && isSameColor(nr, nc, base)) { cells.push(`${nr},${nc}`); nr += dr; nc += dc; }
+    nr = r - dr; nc = c - dc;
+    while (inBounds(nr, nc) && isSameColor(nr, nc, base)) { cells.unshift(`${nr},${nc}`); nr -= dr; nc -= dc; }
+    if (cells.length === 4) { createdYugo = true; vectorCount++; cells.forEach(coord => cellsToRemove.add(coord)); }
+  }
+  if (createdYugo) {
+    cellsToRemove.forEach(coord => {
+      const [cr, cc] = coord.split(',').map(Number);
+      const cellValue = gameBoard[cr][cc];
+      if (cr !== r || cc !== c) {
+        if ((base === 1 && cellValue === 1) || (base === 2 && cellValue === 2)) gameBoard[cr][cc] = 0;
       }
+    });
+    gameBoard[r][c] = base === 1 ? 3 : 4;
+    yugoVectors.set(`${r},${c}`, vectorCount);
+  }
+}
 
-      function playWoodSound() {
-        try {
-          if (!audioCtx) {
-            const AudioContext =
-              window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
-          }
-          if (audioCtx.state === "suspended") {
-            audioCtx.resume();
-          }
-          const osc = audioCtx.createOscillator();
-          const gainNode = audioCtx.createGain();
-
-          osc.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(
-            80,
-            audioCtx.currentTime + 0.08,
-          );
-
-          gainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioCtx.currentTime + 0.12,
-          );
-
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.12);
-        } catch (e) {
-          console.log("Audio Error:", e);
-        }
+function checkIgo(base) {
+  const yugo = base === 1 ? 3 : 4;
+  for (let r = 0; r < GRID_SIZE; r++)
+    for (let c = 0; c < GRID_SIZE; c++) {
+      if (gameBoard[r][c] !== yugo) continue;
+      for (let [dr, dc] of [[0,1],[1,0],[1,1],[1,-1]]) {
+        let count = 0, nr = r, nc = c;
+        while (inBounds(nr, nc) && gameBoard[nr][nc] === yugo) { count++; nr += dr; nc += dc; }
+        if (count >= 4) return true;
       }
+    }
+  return false;
+}
 
-      function saveBoardSnapshot() {
-        const snapshot = gameBoard.map((row) => [...row]);
-        boardHistory.push(snapshot);
-      }
+function hasLegalMoves(base) {
+  for (let r = 0; r < GRID_SIZE; r++)
+    for (let c = 0; c < GRID_SIZE; c++)
+      if (isValidMove(r, c, base)) return true;
+  return false;
+}
 
-      function recordMoveNotation(r, c, base) {
-        const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
-        const notation = `${columns[c]}${8 - r}`;
-        const turnText = base === 2 ? "White" : "Black";
-        const moveNum = Math.floor(moveHistory.length / 2) + 1;
+function initBoard() {
+  gameBoard = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
+  currentTurn = 2;
+}
 
-        if (base === 2) {
-          let moveText = `<div style="padding: 3px 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">${moveNum}. <b>${turnText}</b>: ${notation}`;
-          moveHistory.push(moveText);
-        } else {
-          if (moveHistory.length > 0) {
-            moveHistory[moveHistory.length - 1] +=
-              ` &nbsp;|&nbsp; <b>${turnText}</b>: ${notation}</div>`;
-          } else {
-            let moveText = `<div style="padding: 3px 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">1. <b>${turnText}</b>: ${notation}</div>`;
-            moveHistory.push(moveText);
-          }
-        }
+function playWoodSound() {
+  try {
+    if (!audioCtx) { const A = window.AudioContext || window.webkitAudioContext; audioCtx = new A(); }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator(), gainNode = audioCtx.createGain();
+    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.08);
+    gainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+  } catch(e) { console.log('Audio Error:', e); }
+}
 
-        const panel = document.getElementById("moveHistoryPanel");
-        panel.innerHTML = moveHistory.join("");
-        panel.scrollTop = panel.scrollHeight;
-      }
+function saveBoardSnapshot() {
+  boardHistory.push(gameBoard.map(row => [...row]));
+}
 
-      function createBurst(r, c, color) {
-        const x = c * cellSize + cellSize / 2;
-        const y = r * cellSize + cellSize / 2;
-        for (let i = 0; i < 15; i++) particles.push(new Particle(x, y, color));
-        canvas.classList.add("shake");
-        setTimeout(() => canvas.classList.remove("shake"), 400);
-      }
+function recordMoveNotation(r, c, base) {
+  const columns = ['A','B','C','D','E','F','G','H'];
+  const notation = `${columns[c]}${8 - r}`;
+  const turnText = base === 2 ? 'White' : 'Black';
+  const moveNum = Math.floor(moveHistory.length / 2) + 1;
+  if (base === 2) {
+    let moveText = `<div style="padding:3px 5px;border-bottom:1px solid rgba(255,255,255,0.05)">${moveNum}. <b>${turnText}</b>: ${notation}`;
+    moveHistory.push(moveText);
+  } else {
+    if (moveHistory.length > 0) {
+      moveHistory[moveHistory.length - 1] += ` &nbsp;|&nbsp; <b>${turnText}</b>: ${notation}</div>`;
+    } else {
+      let moveText = `<div style="padding:3px 5px;border-bottom:1px solid rgba(255,255,255,0.05)">1. <b>${turnText}</b>: ${notation}</div>`;
+      moveHistory.push(moveText);
+    }
+  }
+  const panel = document.getElementById('moveHistoryPanel');
+  panel.innerHTML = moveHistory.join('');
+  panel.scrollTop = panel.scrollHeight;
+}
 
-      function initBoard() {
-        gameBoard = Array.from({ length: GRID_SIZE }, () =>
-          Array(GRID_SIZE).fill(0),
-        );
-        currentTurn = 2;
-      }
+function updateUI() {
+  document.getElementById('cardWhite').classList.toggle('active', currentTurn === 2);
+  document.getElementById('cardBlack').classList.toggle('active', currentTurn === 1);
+  document.getElementById('turnInfo').innerText = aiThinking ? 'AI ANALYZING...' : 'AWAITING COMMAND...';
+}
 
-      function inBounds(r, c) {
-        return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
-      }
+function updateScore() {
+  let w = 0, b = 0;
+  gameBoard.forEach(row => row.forEach(cell => { if (cell === 4) w++; if (cell === 3) b++; }));
+  document.getElementById('scoreWhite').innerText = w;
+  document.getElementById('scoreBlack').innerText = b;
+}
 
-      function isSameColor(r, c, base) {
-        const v = inBounds(r, c) ? gameBoard[r][c] : 0;
-        return base === 1 ? v === 1 || v === 3 : v === 2 || v === 4;
-      }
+function updateTimer() {
+  const diff = Math.floor((Date.now() - startTime) / 1000);
+  const m = String(Math.floor(diff / 60)).padStart(2, '0');
+  const s = String(diff % 60).padStart(2, '0');
+  document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+}
 
-      function isValidMove(r, c, base) {
-        if (!inBounds(r, c) || gameBoard[r][c] !== 0) return false;
-        gameBoard[r][c] = base;
-        let illegal = false;
-        const dirs = [
-          [0, 1],
-          [1, 0],
-          [1, 1],
-          [1, -1],
-        ];
+function makeMove(r, c, base) {
+  if (!isValidMove(r, c, base)) return false;
+  if (boardHistory.length === 0) document.getElementById('moveHistoryPanel').innerHTML = '';
+  gameBoard[r][c] = base;
+  playWoodSound();
+  checkAndCapture(r, c, base);
+  recordMoveNotation(r, c, base);
+  saveBoardSnapshot();
+  return true;
+}
+
+function afterMove() {
+  updateScore();
+  if (checkIgo(currentTurn)) {
+    endGame(`IGO DETECTED: ${currentTurn === 2 ? 'WHITE' : 'BLACK'} WINS`);
+    return;
+  }
+  let nextTurn = currentTurn === 1 ? 2 : 1;
+  if (!hasLegalMoves(nextTurn)) {
+    let w = parseInt(document.getElementById('scoreWhite').innerText);
+    let b = parseInt(document.getElementById('scoreBlack').innerText);
+    if (w > b) endGame(`WEGO WIN: WHITE WINS BY YUGO COUNT (${w} vs ${b})`);
+    else if (b > w) endGame(`WEGO WIN: BLACK WINS BY YUGO COUNT (${b} vs ${w})`);
+    else endGame('MATCH DRAW: NO MOVES LEFT AND EQUAL YUGO CORES.');
+    return;
+  }
+  currentTurn = nextTurn;
+  updateUI();
+  rebuild3DPieces();
+  if (gameActive && gameType !== '2Player' && currentTurn === opponentPiece) {
+    aiThinking = true;
+    setTimeout(aiMove, 600);
+  }
+}
+
+// ── AI MOVE — exact copy from original ──
+function aiMove() {
+  let pick = null;
+
+  if (gameType === 'easy') {
+    pick = dapatkanLangkahMudah(gameBoard, currentTurn);
+    console.log('AI (Easy) picks:', pick);
+  } else if (gameType === 'medium') {
+    pick = dapatkanLangkahMedium(gameBoard, currentTurn);
+    console.log('AI (Medium) picks:', pick);
+  } else if (gameType === 'hard') {
+    pick = dapatkanLangkahHard(gameBoard, currentTurn);
+    console.log('AI (Hard) picks:', pick);
+  }
+
+  const moves = [];
+  for (let r = 0; r < GRID_SIZE; r++)
+    for (let c = 0; c < GRID_SIZE; c++)
+      if (isValidMove(r, c, currentTurn)) moves.push({ r, c, score: 0 });
+
+  if (moves.length > 0) {
+    let fallbackPick = moves[Math.floor(Math.random() * moves.length)];
+
+    if (gameType === 'medium' || gameType === 'hard') {
+      moves.forEach(m => {
+        gameBoard[m.r][m.c] = currentTurn;
+        const dirs = [[0,1],[1,0],[1,1],[1,-1]];
         for (let [dr, dc] of dirs) {
-          let count = 1;
-          let nr = r + dr,
-            nc = c + dc;
-          while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
-            count++;
-            nr += dr;
-            nc += dc;
+          let count = 1, nr = m.r + dr, nc = m.c + dc;
+          while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) { count++; nr += dr; nc += dc; }
+          nr = m.r - dr; nc = m.c - dc;
+          while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) { count++; nr -= dr; nc -= dc; }
+          if (count === 4) m.score += 50;
+          if (count === 3) m.score += 10;
+        }
+        gameBoard[m.r][m.c] = 0;
+
+        if (gameType === 'hard') {
+          let enemy = currentTurn === 1 ? 2 : 1;
+          gameBoard[m.r][m.c] = enemy;
+          const dirs2 = [[0,1],[1,0],[1,1],[1,-1]];
+          for (let [dr, dc] of dirs2) {
+            let count = 1, nr = m.r + dr, nc = m.c + dc;
+            while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) { count++; nr += dr; nc += dc; }
+            nr = m.r - dr; nc = m.c - dc;
+            while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) { count++; nr -= dr; nc -= dc; }
+            if (count === 4) m.score += 40;
           }
-          nr = r - dr;
-          nc = c - dc;
-          while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
-            count++;
-            nr -= dr;
-            nc -= dc;
-          }
-          if (count > 4) illegal = true;
-        }
-        gameBoard[r][c] = 0;
-        return !illegal;
-      }
-
-      function checkAndCapture(r, c, base) {
-        let createdYugo = false;
-        const dirs = [
-          [0, 1],
-          [1, 0],
-          [1, 1],
-          [1, -1],
-        ];
-        const cellsToRemove = new Set();
-        let vectorCount = 0;  // Track how many vectors form the yugo
-
-        for (let [dr, dc] of dirs) {
-          let cells = [`${r},${c}`];
-          let nr = r + dr,
-            nc = c + dc;
-          while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
-            cells.push(`${nr},${nc}`);
-            nr += dr;
-            nc += dc;
-          }
-          nr = r - dr;
-          nc = c - dc;
-          while (inBounds(nr, nc) && isSameColor(nr, nc, base)) {
-            cells.unshift(`${nr},${nc}`);
-            nr -= dr;
-            nc -= dc;
-          }
-          if (cells.length === 4) {
-            createdYugo = true;
-            vectorCount++;  // Count this vector
-            cells.forEach((coord) => cellsToRemove.add(coord));
-          }
-        }
-
-        if (createdYugo) {
-          cellsToRemove.forEach((coord) => {
-            const [cr, cc] = coord.split(",").map(Number);
-            const cellValue = gameBoard[cr][cc];
-            // Hanya hapus piece biasa, jangan hapus yugo yang sudah ada dan jangan hapus piece yang baru ditempatkan
-            if (cr !== r || cc !== c) {
-              if ((base === 1 && cellValue === 1) || (base === 2 && cellValue === 2)) {
-                gameBoard[cr][cc] = 0;
-              }
-            }
-          });
-          gameBoard[r][c] = base === 1 ? 3 : 4;
-          // Store the vector count for this yugo
-          yugoVectors.set(`${r},${c}`, vectorCount);
-          createBurst(r, c, base === 1 ? "#21140c" : "#fcf3e3");
-        }
-      }
-
-      function checkIgo(base) {
-        const yugo = base === 1 ? 3 : 4;
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            if (gameBoard[r][c] !== yugo) continue;
-            for (let [dr, dc] of [
-              [0, 1],
-              [1, 0],
-              [1, 1],
-              [1, -1],
-            ]) {
-              let count = 0,
-                nr = r,
-                nc = c;
-              while (inBounds(nr, nc) && gameBoard[nr][nc] === yugo) {
-                count++;
-                nr += dr;
-                nc += dc;
-              }
-              if (count >= 4) return true;
-            }
-          }
-        }
-        return false;
-      }
-
-      function hasLegalMoves(base) {
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            if (isValidMove(r, c, base)) return true;
-          }
-        }
-        return false;
-      }
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Grid Kayu Tradisional
-        ctx.strokeStyle = "rgba(44, 26, 11, 0.4)";
-        ctx.lineWidth = 2;
-        for (let i = 0; i <= GRID_SIZE; i++) {
-          ctx.beginPath();
-          ctx.moveTo(i * cellSize, 0);
-          ctx.lineTo(i * cellSize, canvas.height);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(0, i * cellSize);
-          ctx.lineTo(canvas.width, i * cellSize);
-          ctx.stroke();
-        }
-
-        // --- 2. TAMBAHAN: MENGGAMBAR LABEL KOORDINAT GRID (A-H & 1-8) ---
-        ctx.fillStyle = "rgba(230, 197, 148, 0.35)"; // Warna krem kayu transparan agar elegan dan tidak mengganggu mata
-        ctx.font = "bold 13px 'Cinzel', serif";
-        ctx.textBaseline = "middle";
-
-        const cols = ["A", "B", "C", "D", "E", "F", "G", "H"];
-        for (let i = 0; i < GRID_SIZE; i++) {
-          // Menggambar Huruf Kolom (A-H) di bagian bawah setiap kotak grid
-          ctx.textAlign = "right";
-          ctx.fillText(cols[i], (i + 1) * cellSize - 6, canvas.height - 10);
-
-          // Menggambar Angka Baris (1-8) di bagian pojok kiri atas setiap kotak grid
-          ctx.textAlign = "left";
-          ctx.fillText(8 - i, 8, i * cellSize + 14);
-        }
-
-        // Target Hantu / Bidik Langkah (Hanya jika tidak sedang review)
-        if (gameActive && !aiThinking && !isReviewMode && mouse.gridR !== -1) {
-          if (isValidMove(mouse.gridR, mouse.gridC, currentTurn)) {
-            ctx.fillStyle =
-              currentTurn === 2
-                ? "rgba(255, 255, 255, 0.15)"
-                : "rgba(0, 0, 0, 0.2)";
-            ctx.beginPath();
-            ctx.arc(
-              mouse.gridC * cellSize + cellSize / 2,
-              mouse.gridR * cellSize + cellSize / 2,
-              cellSize * 0.35,
-              0,
-              Math.PI * 2,
-            );
-            ctx.fill();
-            ctx.strokeStyle = "rgba(230, 197, 148, 0.5)";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(
-              mouse.gridC * cellSize + 5,
-              mouse.gridR * cellSize + 5,
-              cellSize - 10,
-              cellSize - 10,
-            );
-          }
-        }
-
-        // Menggambar Pion-Pion Kayu
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            const val = gameBoard[r][c];
-            if (val === 0) continue;
-
-            const x = c * cellSize + cellSize / 2;
-            const y = r * cellSize + cellSize / 2;
-            const isBlack = val === 1 || val === 3;
-            const isYugo = val >= 3;
-
-            ctx.shadowBlur = 0;
-
-            const grad = ctx.createRadialGradient(
-              x - cellSize * 0.1,
-              y - cellSize * 0.1,
-              2,
-              x,
-              y,
-              cellSize * 0.38,
-            );
-            if (isBlack) {
-              grad.addColorStop(0, "#4a3121");
-              grad.addColorStop(0.5, "#21140c");
-              grad.addColorStop(1, "#0d0704");
-            } else {
-              grad.addColorStop(0, "#ffffff");
-              grad.addColorStop(0.3, "#fcf3e3");
-              grad.addColorStop(1, "#d1bba0");
-            }
-
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            // Yugo adalah selalu lingkaran
-            ctx.arc(x, y, cellSize * 0.33, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = isBlack ? "#000000" : "#ba9e7b";
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // Menggambar center marker untuk yugo berdasarkan jumlah vector
-            if (isYugo) {
-              const vectors = yugoVectors.get(`${r},${c}`) || 1;
-              ctx.fillStyle = "#ff4444";
-              ctx.strokeStyle = "#ff0000";
-              ctx.lineWidth = 1.5;
-
-              if (vectors === 1) {
-                // Standard Node: red dot
-                ctx.beginPath();
-                ctx.arc(x, y, 3.5, 0, Math.PI * 2);
-                ctx.fill();
-              } else if (vectors === 2) {
-                // Double Node: red horizontal oval
-                ctx.beginPath();
-                ctx.ellipse(x, y, 6, 3, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-              } else if (vectors === 3) {
-                // Triple Node: red triangle
-                ctx.beginPath();
-                ctx.moveTo(x, y - 5.5);
-                ctx.lineTo(x + 4.8, y + 3);
-                ctx.lineTo(x - 4.8, y + 3);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-              } else if (vectors === 4) {
-                // Quadruple Node: red diamond
-                ctx.beginPath();
-                ctx.moveTo(x, y - 5);
-                ctx.lineTo(x + 5, y);
-                ctx.lineTo(x, y + 5);
-                ctx.lineTo(x - 5, y);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-              }
-            }
-          }
-        }
-
-        for (let i = particles.length - 1; i >= 0; i--) {
-          particles[i].update();
-          particles[i].draw();
-          if (particles[i].life <= 0) particles.splice(i, 1);
-        }
-
-        requestAnimationFrame(animate);
-      }
-
-      canvas.addEventListener("mousemove", (e) => {
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = e.clientX - rect.left;
-        mouse.y = e.clientY - rect.top;
-        mouse.gridC = Math.floor(mouse.x / (rect.width / GRID_SIZE));
-        mouse.gridR = Math.floor(mouse.y / (rect.height / GRID_SIZE));
-      });
-
-      let notificationTimeout;
-
-      canvas.addEventListener("click", () => {
-        if (!gameActive || aiThinking || isReviewMode) return;
-
-        if (!isValidMove(mouse.gridR, mouse.gridC, currentTurn)) {
-          if (
-            inBounds(mouse.gridR, mouse.gridC) &&
-            gameBoard[mouse.gridR][mouse.gridC] === 0
-          ) {
-            const notif = document.getElementById("illegalNotification");
-            clearTimeout(notificationTimeout);
-            notif.classList.add("show");
-
-            canvas.classList.add("shake");
-            setTimeout(() => canvas.classList.remove("shake"), 400);
-
-            notificationTimeout = setTimeout(() => {
-              notif.classList.remove("show");
-            }, 1500);
-          }
-          return;
-        }
-
-        if (makeMove(mouse.gridR, mouse.gridC, currentTurn)) {
-          afterMove();
+          gameBoard[m.r][m.c] = 0;
         }
       });
+      moves.sort((a, b) => b.score - a.score);
+      fallbackPick = moves[0];
+    }
 
-      function makeMove(r, c, base) {
-        if (!isValidMove(r, c, base)) return false;
+    const aiPickIsValid =
+      pick &&
+      Number.isInteger(pick.r) &&
+      Number.isInteger(pick.c) &&
+      isValidMove(pick.r, pick.c, currentTurn);
 
-        if (boardHistory.length === 0) {
-          document.getElementById("moveHistoryPanel").innerHTML = "";
-        }
+    const finalPick = aiPickIsValid ? pick : fallbackPick;
 
-        gameBoard[r][c] = base;
-        playWoodSound();
-        checkAndCapture(r, c, base);
+    makeMove(finalPick.r, finalPick.c, currentTurn);
+    rebuild3DPieces();
+    afterMove();
+  }
+  aiThinking = false;
+}
 
-        recordMoveNotation(r, c, base);
-        saveBoardSnapshot();
+function endGame(msg) {
+  gameActive = false;
+  clearInterval(timerInt);
+  document.getElementById('modalTitle').innerText = 'MATCH ENDED';
+  document.getElementById('modalMessage').innerText = msg;
+  document.getElementById('gameModal').style.display = 'flex';
+  if (boardHistory.length > 0) {
+    isReviewMode = true;
+    reviewIndex = boardHistory.length - 1;
+    document.getElementById('reviewControls').style.display = 'grid';
+  }
+}
 
-        return true;
-      }
+// ══════════════════════════════════════════════════════════
+// UI BUTTON HANDLERS
+// ══════════════════════════════════════════════════════════
+document.getElementById('gameTypeSelect').onchange = function() {
+  document.getElementById('playerColorContainer').style.display = this.value === '2Player' ? 'none' : 'block';
+};
 
-      function afterMove() {
-        updateScore();
-        if (checkIgo(currentTurn)) {
-          endGame(
-            `IGO DETECTED: ${currentTurn === 2 ? "WHITE" : "BLACK"} WINS`,
-          );
-          return;
-        }
+document.getElementById('btnStart').onclick = () => {
+  moveHistory = []; boardHistory = []; reviewIndex = -1; isReviewMode = false; yugoVectors.clear();
+  document.getElementById('moveHistoryPanel').innerHTML = '<div style="opacity:0.5;text-align:center;margin-top:40px">No moves recorded</div>';
+  document.getElementById('reviewControls').style.display = 'none';
+  gameType = document.getElementById('gameTypeSelect').value;
+  if (gameType !== '2Player') {
+    playerPiece = document.getElementById('playerColorSelect').value === 'white' ? 2 : 1;
+    opponentPiece = playerPiece === 1 ? 2 : 1;
+  }
+  initBoard();
+  gameActive = true;
+  startTime = Date.now();
+  if (timerInt) clearInterval(timerInt);
+  timerInt = setInterval(updateTimer, 1000);
+  document.getElementById('btnResign').disabled = false;
+  updateUI(); updateScore();
+  rebuild3DPieces();
+  if (gameType !== '2Player' && currentTurn === opponentPiece) { aiThinking = true; setTimeout(aiMove, 600); }
+};
 
-        let nextTurn = currentTurn === 1 ? 2 : 1;
+document.getElementById('btnReset').onclick = () => location.reload();
 
-        if (!hasLegalMoves(nextTurn)) {
-          let w = parseInt(document.getElementById("scoreWhite").innerText);
-          let b = parseInt(document.getElementById("scoreBlack").innerText);
-          if (w > b)
-            endGame(`WEGO WIN: WHITE WINS BY YUGO COUNT (${w} vs ${b})`);
-          else if (b > w)
-            endGame(`WEGO WIN: BLACK WINS BY YUGO COUNT (${b} vs ${w})`);
-          else endGame(`MATCH DRAW: NO MOVES LEFT AND EQUAL YUGO CORES.`);
-          return;
-        }
+document.getElementById('btnResign').onclick = () => {
+  endGame(`TACTICAL RESIGNATION: ${currentTurn === 2 ? 'WHITE' : 'BLACK'} SURRENDERED.`);
+};
 
-        currentTurn = nextTurn;
-        updateUI();
+document.getElementById('btnPrevMove').onclick = () => {
+  if (!isReviewMode || reviewIndex <= 0) return;
+  reviewIndex--;
+  gameBoard = boardHistory[reviewIndex].map(row => [...row]);
+  highlightHistoryRow(reviewIndex);
+  rebuild3DPieces();
+};
 
-        if (
-          gameActive &&
-          gameType !== "2Player" &&
-          currentTurn === opponentPiece
-        ) {
-          aiThinking = true;
-          setTimeout(aiMove, 600);
-        }
-      }
+document.getElementById('btnNextMove').onclick = () => {
+  if (!isReviewMode || reviewIndex >= boardHistory.length - 1) return;
+  reviewIndex++;
+  gameBoard = boardHistory[reviewIndex].map(row => [...row]);
+  highlightHistoryRow(reviewIndex);
+  rebuild3DPieces();
+};
 
-      function aiMove() {
-        let pick = null;
+function highlightHistoryRow(index) {
+  const items = document.getElementById('moveHistoryPanel').getElementsByTagName('div');
+  const rowIndex = Math.floor(index / 2);
+  for (let item of items) item.style.background = 'transparent';
+  if (items[rowIndex]) {
+    items[rowIndex].style.background = 'rgba(230,197,148,0.2)';
+    items[rowIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
 
-        if (gameType === "easy") {
-          pick = dapatkanLangkahMudah(gameBoard, currentTurn);
-          console.log("AI (Easy) picks:", pick);
-        } else if (gameType === "medium") {
-          pick = dapatkanLangkahMedium(gameBoard, currentTurn);
-          console.log("AI (Medium) picks:", pick);
-        } else if (gameType === "hard") {
-          pick = dapatkanLangkahHard(gameBoard, currentTurn);
-          console.log("AI (Hard) picks:", pick);
-        }
-        const moves = [];
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            if (isValidMove(r, c, currentTurn)) moves.push({ r, c, score: 0 });
+let notifTimeout;
+function showIllegalNotif() {
+  const notif = document.getElementById('illegalNotif');
+  clearTimeout(notifTimeout);
+  notif.classList.add('show');
+  notifTimeout = setTimeout(() => notif.classList.remove('show'), 1500);
+}
+
+// ══════════════════════════════════════════════════════════
+// THREE.JS SCENE SETUP
+// ══════════════════════════════════════════════════════════
+const canvas3d = document.getElementById('canvas3d');
+const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x1a0f0a, 1);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x1a0f0a, 45, 80);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+
+// ── Lights ──
+const ambientLight = new THREE.AmbientLight(0xffd9a0, 0.45);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xffe8cc, 1.6);
+sunLight.position.set(12, 22, 12);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(2048, 2048);
+sunLight.shadow.camera.near = 0.1;
+sunLight.shadow.camera.far = 70;
+sunLight.shadow.camera.left   = -22;
+sunLight.shadow.camera.right  =  22;
+sunLight.shadow.camera.top    =  22;
+sunLight.shadow.camera.bottom = -22;
+scene.add(sunLight);
+
+const rimLight = new THREE.PointLight(0xcf9a72, 0.9, 50);
+rimLight.position.set(-10, 10, -10);
+scene.add(rimLight);
+
+const fillLight = new THREE.PointLight(0x6644aa, 0.25, 40);
+fillLight.position.set(10, 5, -12);
+scene.add(fillLight);
+
+// ── Board ──
+const CELL = 2.5;
+const BOARD_SIZE = GRID_SIZE * CELL;  // 20
+const BOARD_H = 0.55;
+
+// Thick wood base
+const boardGeo = new THREE.BoxGeometry(BOARD_SIZE + 2.0, BOARD_H, BOARD_SIZE + 2.0);
+const boardMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.88, metalness: 0.03 });
+const boardMesh = new THREE.Mesh(boardGeo, boardMat);
+boardMesh.receiveShadow = true;
+boardMesh.position.y = -BOARD_H / 2;
+scene.add(boardMesh);
+
+// Playing surface
+const surfGeo = new THREE.BoxGeometry(BOARD_SIZE, 0.09, BOARD_SIZE);
+const surfMat = new THREE.MeshStandardMaterial({ color: 0x3d2516, roughness: 0.92, metalness: 0.0 });
+const surfMesh = new THREE.Mesh(surfGeo, surfMat);
+surfMesh.receiveShadow = true;
+surfMesh.position.y = 0.025;
+scene.add(surfMesh);
+
+// Grid lines
+const lineMat = new THREE.MeshStandardMaterial({ color: 0x2c1a0b, roughness: 1.0 });
+for (let i = 0; i <= GRID_SIZE; i++) {
+  const h = new THREE.Mesh(new THREE.BoxGeometry(BOARD_SIZE, 0.04, 0.06), lineMat);
+  h.position.set(0, 0.07, -BOARD_SIZE / 2 + i * CELL);
+  scene.add(h);
+  const v = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, BOARD_SIZE), lineMat);
+  v.position.set(-BOARD_SIZE / 2 + i * CELL, 0.07, 0);
+  scene.add(v);
+}
+
+// Coordinate labels
+function makeLabel(text) {
+  const sz = 128;
+  const c = document.createElement('canvas');
+  c.width = sz; c.height = sz;
+  const cx = c.getContext('2d');
+  cx.fillStyle = 'rgba(230,197,148,0.75)';
+  cx.font = 'bold 74px serif';
+  cx.textAlign = 'center';
+  cx.textBaseline = 'middle';
+  cx.fillText(text, sz / 2, sz / 2);
+  const tex = new THREE.CanvasTexture(c);
+  const geo = new THREE.PlaneGeometry(0.88, 0.88);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false });
+  return new THREE.Mesh(geo, mat);
+}
+const colLabels = ['A','B','C','D','E','F','G','H'];
+for (let i = 0; i < GRID_SIZE; i++) {
+  const lm = makeLabel(colLabels[i]);
+  lm.rotation.x = -Math.PI / 2;
+  lm.position.set(-BOARD_SIZE/2 + CELL/2 + i*CELL, 0.13, BOARD_SIZE/2 + 1.0);
+  scene.add(lm);
+  const nm = makeLabel(String(8 - i));
+  nm.rotation.x = -Math.PI / 2;
+  nm.position.set(-BOARD_SIZE/2 - 1.0, 0.13, -BOARD_SIZE/2 + CELL/2 + i*CELL);
+  scene.add(nm);
+}
+
+// ── Piece materials ──
+const PIECE_R = CELL * 0.355;
+const PIECE_H_3D = 0.52;
+const pieceGeo = new THREE.CylinderGeometry(PIECE_R, PIECE_R * 0.88, PIECE_H_3D, 36);
+
+const matWhite     = new THREE.MeshStandardMaterial({ color: 0xfcf3e3, roughness: 0.28, metalness: 0.12 });
+const matBlack     = new THREE.MeshStandardMaterial({ color: 0x21140c, roughness: 0.42, metalness: 0.06 });
+const matWhiteYugo = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.18, metalness: 0.35, emissive: 0x554433, emissiveIntensity: 0.25 });
+const matBlackYugo = new THREE.MeshStandardMaterial({ color: 0x100805, roughness: 0.30, metalness: 0.25, emissive: 0x330a00, emissiveIntensity: 0.3  });
+const matMarker    = new THREE.MeshStandardMaterial({ color: 0xff2222, emissive: 0xcc0000, emissiveIntensity: 0.55, roughness: 0.25, metalness: 0.1 });
+
+const pieceGroup = new THREE.Group();
+scene.add(pieceGroup);
+
+function cellToWorld(r, c) {
+  return [
+    -BOARD_SIZE / 2 + CELL / 2 + c * CELL,
+    -BOARD_SIZE / 2 + CELL / 2 + r * CELL
+  ];
+}
+
+function rebuild3DPieces() {
+  // Dispose previous meshes to avoid memory leak
+  while (pieceGroup.children.length) {
+    const obj = pieceGroup.children[0];
+    pieceGroup.remove(obj);
+    if (obj.geometry) obj.geometry.dispose();
+  }
+
+  for (let r = 0; r < GRID_SIZE; r++) {
+    for (let c = 0; c < GRID_SIZE; c++) {
+      const val = gameBoard[r][c];
+      if (val === 0) continue;
+
+      const isBlack = val === 1 || val === 3;
+      const isYugo  = val >= 3;
+      const [x, z]  = cellToWorld(r, c);
+      const y       = PIECE_H_3D / 2 + 0.03;
+
+      const mat = isYugo
+        ? (isBlack ? matBlackYugo : matWhiteYugo)
+        : (isBlack ? matBlack : matWhite);
+
+      const piece = new THREE.Mesh(pieceGeo, mat);
+      piece.castShadow = true;
+      piece.receiveShadow = true;
+      piece.position.set(x, y, z);
+      pieceGroup.add(piece);
+
+      if (isYugo) {
+        // Ring on top
+        const ringGeo = new THREE.TorusGeometry(PIECE_R * 0.52, 0.065, 8, 36);
+        const ring = new THREE.Mesh(ringGeo, matMarker);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.set(x, PIECE_H_3D + 0.08, z);
+        pieceGroup.add(ring);
+
+        // Center marker by vector count (same visual language as original)
+        const vectors = yugoVectors.get(`${r},${c}`) || 1;
+        if (vectors === 1) {
+          // Standard Node: dot
+          const dot = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 8), matMarker);
+          dot.position.set(x, PIECE_H_3D + 0.22, z);
+          pieceGroup.add(dot);
+        } else if (vectors === 2) {
+          // Double Node: two dots (horizontal oval equiv)
+          for (let k = -1; k <= 1; k += 2) {
+            const d = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), matMarker);
+            d.position.set(x + k * 0.21, PIECE_H_3D + 0.22, z);
+            pieceGroup.add(d);
           }
-        }
-
-        if (moves.length > 0) {
-          // Fallback random move if custom AI returns null/invalid.
-          let fallbackPick = moves[Math.floor(Math.random() * moves.length)];
-
-          if (gameType === "medium" || gameType === "hard") {
-            moves.forEach((m) => {
-              gameBoard[m.r][m.c] = currentTurn;
-              const dirs = [
-                [0, 1],
-                [1, 0],
-                [1, 1],
-                [1, -1],
-              ];
-              for (let [dr, dc] of dirs) {
-                let count = 1;
-                let nr = m.r + dr,
-                  nc = m.c + dc;
-                while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) {
-                  count++;
-                  nr += dr;
-                  nc += dc;
-                }
-                nr = m.r - dr;
-                nc = m.c - dc;
-                while (inBounds(nr, nc) && isSameColor(nr, nc, currentTurn)) {
-                  count++;
-                  nr -= dr;
-                  nc -= dc;
-                }
-                if (count === 4) m.score += 50;
-                if (count === 3) m.score += 10;
-              }
-              gameBoard[m.r][m.c] = 0;
-
-              if (gameType === "hard") {
-                let enemy = currentTurn === 1 ? 2 : 1;
-                gameBoard[m.r][m.c] = enemy;
-                for (let [dr, dc] of dirs) {
-                  let count = 1;
-                  let nr = m.r + dr,
-                    nc = m.c + dc;
-                  while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) {
-                    count++;
-                    nr += dr;
-                    nc += dc;
-                  }
-                  nr = m.r - dr;
-                  nc = m.c - dc;
-                  while (inBounds(nr, nc) && isSameColor(nr, nc, enemy)) {
-                    count++;
-                    nr -= dr;
-                    nc -= dc;
-                  }
-                  if (count === 4) m.score += 40;
-                }
-                gameBoard[m.r][m.c] = 0;
-              }
-            });
-            moves.sort((a, b) => b.score - a.score);
-            fallbackPick = moves[0];
-          }
-
-          const aiPickIsValid =
-            pick &&
-            Number.isInteger(pick.r) &&
-            Number.isInteger(pick.c) &&
-            isValidMove(pick.r, pick.c, currentTurn);
-
-          const finalPick = aiPickIsValid ? pick : fallbackPick;
-
-          makeMove(finalPick.r, finalPick.c, currentTurn);
-          afterMove();
-        }
-        aiThinking = false;
-      }
-
-      function updateUI() {
-        document
-          .getElementById("cardWhite")
-          .classList.toggle("active", currentTurn === 2);
-        document
-          .getElementById("cardBlack")
-          .classList.toggle("active", currentTurn === 1);
-        document.getElementById("turnInfo").innerText = aiThinking
-          ? "AI ANALYZING..."
-          : "AWAITING COMMAND...";
-      }
-
-      function updateScore() {
-        let w = 0,
-          b = 0;
-        gameBoard.forEach((row) =>
-          row.forEach((cell) => {
-            if (cell === 4) w++;
-            if (cell === 3) b++;
-          }),
-        );
-        document.getElementById("scoreWhite").innerText = w;
-        document.getElementById("scoreBlack").innerText = b;
-      }
-
-      function updateTimer() {
-        const diff = Math.floor((Date.now() - startTime) / 1000);
-        const m = String(Math.floor(diff / 60)).padStart(2, "0");
-        const s = String(diff % 60).padStart(2, "0");
-        document.getElementById("timerDisplay").innerText = `${m}:${s}`;
-      }
-
-      document.getElementById("btnStart").onclick = () => {
-        // Reset Variabel Review & History
-        moveHistory = [];
-        boardHistory = [];
-        reviewIndex = -1;
-        isReviewMode = false;
-        yugoVectors.clear();  // Reset yugo vector tracking
-        document.getElementById("moveHistoryPanel").innerHTML =
-          '<div style="opacity: 0.5; text-align: center; margin-top: 50px;">No moves recorded</div>';
-        document.getElementById("reviewControls").style.display = "none";
-
-        gameType = document.getElementById("gameTypeSelect").value;
-        if (gameType !== "2Player") {
-          playerPiece =
-            document.getElementById("playerColorSelect").value === "white"
-              ? 2
-              : 1;
-          opponentPiece = playerPiece === 1 ? 2 : 1;
-        }
-        initBoard();
-        gameActive = true;
-        startTime = Date.now();
-        if (timerInt) clearInterval(timerInt);
-        timerInt = setInterval(updateTimer, 1000);
-        document.getElementById("btnResign").disabled = false;
-        updateUI();
-        updateScore();
-
-        if (gameType !== "2Player" && currentTurn === opponentPiece) {
-          aiThinking = true;
-          setTimeout(aiMove, 600);
-        }
-      };
-
-      document.getElementById("btnReset").onclick = () => location.reload();
-      document.getElementById("btnResign").onclick = () => {
-        endGame(
-          `TACTICAL RESIGNATION: ${currentTurn === 2 ? "WHITE" : "BLACK"} SURRENDERED.`,
-        );
-      };
-
-      function endGame(msg) {
-        gameActive = false;
-        clearInterval(timerInt);
-        document.getElementById("modalTitle").innerText = "MATCH ENDED";
-        document.getElementById("modalMessage").innerText = msg;
-        document.getElementById("gameModal").style.display = "flex";
-
-        if (boardHistory.length > 0) {
-          isReviewMode = true;
-          reviewIndex = boardHistory.length - 1;
-          document.getElementById("reviewControls").style.display = "grid";
-        }
-      }
-
-      function closeModal() {
-        document.getElementById("gameModal").style.display = "none";
-      }
-
-      document.getElementById("gameTypeSelect").onchange = function () {
-        document.getElementById("playerColorContainer").style.display =
-          this.value === "2Player" ? "none" : "block";
-      };
-
-      // Logika Tombol Navigasi Review
-      document.getElementById("btnPrevMove").onclick = () => {
-        if (!isReviewMode || reviewIndex <= 0) return;
-        reviewIndex--;
-        gameBoard = boardHistory[reviewIndex].map((row) => [...row]);
-        highlightHistoryRow(reviewIndex);
-      };
-
-      document.getElementById("btnNextMove").onclick = () => {
-        if (!isReviewMode || reviewIndex >= boardHistory.length - 1) return;
-        reviewIndex++;
-        gameBoard = boardHistory[reviewIndex].map((row) => [...row]);
-        highlightHistoryRow(reviewIndex);
-      };
-
-      function highlightHistoryRow(index) {
-        const items = document
-          .getElementById("moveHistoryPanel")
-          .getElementsByTagName("div");
-        const rowIndex = Math.floor(index / 2);
-
-        for (let item of items) item.style.background = "transparent";
-
-        if (items[rowIndex]) {
-          items[rowIndex].style.background = "rgba(230, 197, 148, 0.2)";
-          items[rowIndex].scrollIntoView({
-            block: "nearest",
-            behavior: "smooth",
+        } else if (vectors === 3) {
+          // Triple Node: triangle arrangement
+          const angles = [Math.PI/2, Math.PI/2 + 2*Math.PI/3, Math.PI/2 + 4*Math.PI/3];
+          angles.forEach(a => {
+            const d = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), matMarker);
+            d.position.set(x + Math.cos(a)*0.22, PIECE_H_3D + 0.22, z + Math.sin(a)*0.22);
+            pieceGroup.add(d);
           });
+        } else if (vectors === 4) {
+          // Quadruple Node: diamond — spinning octahedron
+          const diam = new THREE.Mesh(new THREE.OctahedronGeometry(0.19), matMarker);
+          diam.position.set(x, PIECE_H_3D + 0.28, z);
+          diam.userData.spin = true;
+          pieceGroup.add(diam);
         }
       }
+    }
+  }
+}
 
-      initBoard();
-      animate();
-    </script>
-  </body>
+// ── Hover highlight disc ──
+const hlGeo = new THREE.CylinderGeometry(PIECE_R + 0.08, PIECE_R + 0.08, 0.05, 36);
+const hlMat = new THREE.MeshBasicMaterial({ color: 0xe6c594, transparent: true, opacity: 0.28, depthWrite: false });
+const hlMesh = new THREE.Mesh(hlGeo, hlMat);
+hlMesh.visible = false;
+scene.add(hlMesh);
+
+// ── Drop animation queue ──
+// (pieces slide up from below on placement)
+// tracked in pieceGroup userData
+let dropQueue = [];
+
+// ══════════════════════════════════════════════════════════
+// ORBIT CAMERA (manual, no OrbitControls dep)
+// ══════════════════════════════════════════════════════════
+let isDragging = false, lastX = 0, lastY = 0;
+let camTheta = 0.32, camPhi = 0.78, camDist = 30;
+const CAM_TARGET = new THREE.Vector3(0, 0, 0);
+
+function applyCamera() {
+  camera.position.set(
+    camDist * Math.sin(camPhi) * Math.sin(camTheta),
+    camDist * Math.cos(camPhi),
+    camDist * Math.sin(camPhi) * Math.cos(camTheta)
+  );
+  camera.lookAt(CAM_TARGET);
+}
+applyCamera();
+
+canvas3d.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
+window.addEventListener('mouseup', () => { isDragging = false; });
+canvas3d.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  camTheta -= (e.clientX - lastX) * 0.007;
+  camPhi = Math.max(0.18, Math.min(Math.PI/2 - 0.04, camPhi + (e.clientY - lastY) * 0.007));
+  lastX = e.clientX; lastY = e.clientY;
+  applyCamera();
+});
+canvas3d.addEventListener('wheel', e => {
+  e.preventDefault();
+  camDist = Math.max(12, Math.min(48, camDist + e.deltaY * 0.04));
+  applyCamera();
+}, { passive: false });
+// Touch orbit
+let lastTX = 0, lastTY = 0;
+canvas3d.addEventListener('touchstart', e => { lastTX = e.touches[0].clientX; lastTY = e.touches[0].clientY; }, { passive: true });
+canvas3d.addEventListener('touchmove', e => {
+  camTheta -= (e.touches[0].clientX - lastTX) * 0.007;
+  camPhi = Math.max(0.18, Math.min(Math.PI/2 - 0.04, camPhi + (e.touches[0].clientY - lastTY) * 0.007));
+  lastTX = e.touches[0].clientX; lastTY = e.touches[0].clientY;
+  applyCamera();
+}, { passive: true });
+
+document.getElementById('btnResetCam').onclick = () => {
+  camTheta = 0.32; camPhi = 0.78; camDist = 30; applyCamera();
+};
+
+// ══════════════════════════════════════════════════════════
+// RAYCASTING — board plane click/hover
+// ══════════════════════════════════════════════════════════
+const raycaster = new THREE.Raycaster();
+const boardPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.06);
+
+function getNDC(clientX, clientY) {
+  const rect = canvas3d.getBoundingClientRect();
+  return {
+    x:  ((clientX - rect.left)  / rect.width)  * 2 - 1,
+    y: -((clientY - rect.top)   / rect.height) * 2 + 1
+  };
+}
+
+function getRC(clientX, clientY) {
+  raycaster.setFromCamera(getNDC(clientX, clientY), camera);
+  const hit = new THREE.Vector3();
+  if (!raycaster.ray.intersectPlane(boardPlane, hit)) return [-1, -1];
+  const c = Math.floor((hit.x + BOARD_SIZE / 2) / CELL);
+  const r = Math.floor((hit.z + BOARD_SIZE / 2) / CELL);
+  if (r < 0 || r >= GRID_SIZE || c < 0 || c >= GRID_SIZE) return [-1, -1];
+  return [r, c];
+}
+
+canvas3d.addEventListener('mousemove', e => {
+  if (!gameActive || aiThinking || isReviewMode) { hlMesh.visible = false; return; }
+  const [r, c] = getRC(e.clientX, e.clientY);
+  if (r === -1 || !isValidMove(r, c, currentTurn)) { hlMesh.visible = false; return; }
+  const [wx, wz] = cellToWorld(r, c);
+  hlMesh.position.set(wx, 0.08, wz);
+  hlMesh.visible = true;
+});
+
+canvas3d.addEventListener('mouseleave', () => { hlMesh.visible = false; });
+
+canvas3d.addEventListener('click', e => {
+  if (!gameActive || aiThinking || isReviewMode) return;
+  const [r, c] = getRC(e.clientX, e.clientY);
+  if (r === -1) return;
+  if (!isValidMove(r, c, currentTurn)) {
+    if (inBounds(r, c) && gameBoard[r][c] === 0) showIllegalNotif();
+    return;
+  }
+  makeMove(r, c, currentTurn);
+  rebuild3DPieces();
+  afterMove();
+});
+
+// ══════════════════════════════════════════════════════════
+// RESIZE
+// ══════════════════════════════════════════════════════════
+function onResize() {
+  const wrap = canvas3d.parentElement;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', onResize);
+onResize();
+
+// ══════════════════════════════════════════════════════════
+// RENDER LOOP
+// ══════════════════════════════════════════════════════════
+let clock = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  clock += 0.016;
+
+  // Subtle rim pulsing
+  rimLight.intensity = 0.7 + 0.2 * Math.sin(clock * 0.7);
+
+  // Spin quad-vector diamond markers
+  pieceGroup.children.forEach(obj => {
+    if (obj.userData.spin) obj.rotation.y += 0.028;
+  });
+
+  renderer.render(scene, camera);
+}
+
+// ── Init ──
+initBoard();
+rebuild3DPieces();
+animate();
+</script>
+</body>
 </html>

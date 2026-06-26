@@ -23,7 +23,7 @@ function dapatkanLangkahMedium(board, currentTurn) {
 function mediumAI(board, piece) {
     const GRID_SIZE = 8;
     const opponentPiece = piece === 1 ? 2 : 1;
-    const SEARCH_DEPTH = 3;
+    const SEARCH_DEPTH = 2;
     
     const DIRECTIONS = [
         { dr: 0, dc: 1 },   // horizontal
