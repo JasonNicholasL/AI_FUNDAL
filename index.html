@@ -763,40 +763,58 @@ function rebuild3DPieces() {
       pieceGroup.add(piece);
 
       if (isYugo) {
-        // Ring on top
-        const ringGeo = new THREE.TorusGeometry(PIECE_R * 0.52, 0.065, 8, 36);
-        const ring = new THREE.Mesh(ringGeo, matMarker);
-        ring.rotation.x = Math.PI / 2;
-        ring.position.set(x, PIECE_H_3D + 0.08, z);
-        pieceGroup.add(ring);
-
-        // Center marker by vector count (same visual language as original)
+        const MY = PIECE_H_3D + 0.055; // marker Y (sits flat on top of piece)
         const vectors = yugoVectors.get(`${r},${c}`) || 1;
+
         if (vectors === 1) {
-          // Standard Node: dot
-          const dot = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 8), matMarker);
-          dot.position.set(x, PIECE_H_3D + 0.22, z);
+          // ── Standard Node: red dot (filled circle) ──
+          const dotGeo = new THREE.CylinderGeometry(0.16, 0.16, 0.07, 24);
+          const dot = new THREE.Mesh(dotGeo, matMarker);
+          dot.position.set(x, MY, z);
           pieceGroup.add(dot);
+
         } else if (vectors === 2) {
-          // Double Node: two dots (horizontal oval equiv)
-          for (let k = -1; k <= 1; k += 2) {
-            const d = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), matMarker);
-            d.position.set(x + k * 0.21, PIECE_H_3D + 0.22, z);
-            pieceGroup.add(d);
-          }
+          // ── Double Node: red horizontal oval ──
+          // Built as a scaled cylinder (ellipse when viewed from top)
+          const ovalGeo = new THREE.CylinderGeometry(1, 1, 0.07, 32);
+          const oval = new THREE.Mesh(ovalGeo, matMarker);
+          oval.scale.set(0.28, 1, 0.14); // wide X, narrow Z → horizontal oval
+          oval.position.set(x, MY, z);
+          pieceGroup.add(oval);
+
         } else if (vectors === 3) {
-          // Triple Node: triangle arrangement
-          const angles = [Math.PI/2, Math.PI/2 + 2*Math.PI/3, Math.PI/2 + 4*Math.PI/3];
-          angles.forEach(a => {
-            const d = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), matMarker);
-            d.position.set(x + Math.cos(a)*0.22, PIECE_H_3D + 0.22, z + Math.sin(a)*0.22);
-            pieceGroup.add(d);
-          });
+          // ── Triple Node: red equilateral triangle ──
+          const triShape = new THREE.Shape();
+          const TR = 0.22; // circumradius
+          for (let i = 0; i < 3; i++) {
+            const a = (Math.PI / 2) + (i * 2 * Math.PI / 3);
+            const px2 = Math.cos(a) * TR;
+            const py2 = Math.sin(a) * TR;
+            if (i === 0) triShape.moveTo(px2, py2);
+            else         triShape.lineTo(px2, py2);
+          }
+          triShape.closePath();
+          const triGeo = new THREE.ExtrudeGeometry(triShape, { depth: 0.07, bevelEnabled: false });
+          const tri = new THREE.Mesh(triGeo, matMarker);
+          // ExtrudeGeometry extrudes along Z — rotate to lie flat (XZ plane)
+          tri.rotation.x = -Math.PI / 2;
+          tri.position.set(x, MY, z);
+          pieceGroup.add(tri);
+
         } else if (vectors === 4) {
-          // Quadruple Node: diamond — spinning octahedron
-          const diam = new THREE.Mesh(new THREE.OctahedronGeometry(0.19), matMarker);
-          diam.position.set(x, PIECE_H_3D + 0.28, z);
-          diam.userData.spin = true;
+          // ── Quadruple Node: red diamond (rhombus) ──
+          const diamShape = new THREE.Shape();
+          const DW = 0.24; // half-width
+          const DH = 0.18; // half-height
+          diamShape.moveTo(0,   DH);
+          diamShape.lineTo(DW,  0);
+          diamShape.lineTo(0,  -DH);
+          diamShape.lineTo(-DW, 0);
+          diamShape.closePath();
+          const diamGeo = new THREE.ExtrudeGeometry(diamShape, { depth: 0.07, bevelEnabled: false });
+          const diam = new THREE.Mesh(diamGeo, matMarker);
+          diam.rotation.x = -Math.PI / 2;
+          diam.position.set(x, MY, z);
           pieceGroup.add(diam);
         }
       }
@@ -933,11 +951,6 @@ function animate() {
 
   // Subtle rim pulsing
   rimLight.intensity = 0.7 + 0.2 * Math.sin(clock * 0.7);
-
-  // Spin quad-vector diamond markers
-  pieceGroup.children.forEach(obj => {
-    if (obj.userData.spin) obj.rotation.y += 0.028;
-  });
 
   renderer.render(scene, camera);
 }
