@@ -37,6 +37,7 @@ function dapatkanLangkahHard(board, currentTurn) {
 
 function hardAI(board, piece) {
   const depth = 4; // Look ahead 4 moves
+  const stats = { visited: 0, pruned: 0 };
   const { move } = minimax(
     JSON.parse(JSON.stringify(board)),
     piece,
@@ -44,11 +45,18 @@ function hardAI(board, piece) {
     -Infinity,
     Infinity,
     true,
+    stats,
   );
+
+  console.log(
+    `[Hard AI] nodes before pruning: ${stats.visited}, nodes after pruning: ${stats.visited - stats.pruned}, pruned: ${stats.pruned}`,
+  );
+
   return move || findBestFallbackMove(board, piece);
 }
 
-function minimax(board, piece, depth, alpha, beta, isMaximizing) {
+function minimax(board, piece, depth, alpha, beta, isMaximizing, stats) {
+  stats.visited += 1;
   const opponent = piece === 1 ? 2 : 1;
   const myYugo = piece + 2;
   const oppYugo = opponent + 2;
@@ -96,13 +104,17 @@ function minimax(board, piece, depth, alpha, beta, isMaximizing) {
         alpha,
         beta,
         false,
+        stats,
       );
       if (score > maxScore) {
         maxScore = score;
         bestMove = [r, c];
       }
       alpha = Math.max(alpha, score);
-      if (beta <= alpha) break; // Pruning
+      if (beta <= alpha) {
+        stats.pruned += 1;
+        break; // Pruning
+      }
     }
     return { score: maxScore, move: bestMove };
   } else {
@@ -110,13 +122,16 @@ function minimax(board, piece, depth, alpha, beta, isMaximizing) {
     for (const [r, c] of validMoves) {
       const boardCopy = simulateMove(board, r, c, opponent);
 
-      const { score } = minimax(boardCopy, piece, depth - 1, alpha, beta, true);
+      const { score } = minimax(boardCopy, piece, depth - 1, alpha, beta, true, stats);
       if (score < minScore) {
         minScore = score;
         bestMove = [r, c];
       }
       beta = Math.min(beta, score);
-      if (beta <= alpha) break; // Pruning
+      if (beta <= alpha) {
+        stats.pruned += 1;
+        break; // Pruning
+      }
     }
     return { score: minScore, move: bestMove };
   }
